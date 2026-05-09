@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR" ng-app="viabilidadeVerdeApp">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Viabilidade Verde | MVP</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/map.css">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body ng-controller="HomeController as home">
+  <header class="topbar">
+    <div>
+      <h1>Viabilidade Verde</h1>
+      <p class="tagline">A transicao energetica so acelera quando a conta fecha.</p>
+    </div>
+    <span class="chip" ng-class="{'chip-live': home.firebaseEnabled, 'chip-fallback': !home.firebaseEnabled}">
+      {{ home.firebaseEnabled ? 'Dados em tempo real (Firebase)' : 'Fallback local (JSON)' }}
+    </span>
+  </header>
+
+  <main class="layout">
+    <section class="map-panel">
+      <leaflet center="home.map.center" defaults="home.map.defaults" markers="home.map.markers" height="420px"></leaflet>
+      <p class="helper">Selecione uma oportunidade na lista para preencher o simulador.</p>
+    </section>
+
+    <aside class="sidebar">
+      <h2>Oportunidades</h2>
+      <p ng-if="home.loading">Carregando dados...</p>
+      <p class="error" ng-if="home.error">{{ home.error }}</p>
+
+      <ul class="op-list" ng-if="!home.loading">
+        <li ng-repeat="item in home.opportunities" ng-click="home.selectOpportunity(item)" ng-class="{'active': home.selectedOpportunity && home.selectedOpportunity.id === item.id}">
+          <strong>{{ item.name }}</strong>
+          <small>{{ item.region }} | {{ item.sector }}</small>
+        </li>
+      </ul>
+
+      <h2>Simulador</h2>
+      <form ng-submit="home.calculate()">
+        <label>Regiao</label>
+        <input type="text" ng-model="home.form.region" required>
+
+        <label>Setor</label>
+        <input type="text" ng-model="home.form.sector" required>
+
+        <label>Fonte atual</label>
+        <input type="text" ng-model="home.form.currentSource" required>
+
+        <label>Rota verde</label>
+        <select ng-model="home.form.recommendedRoute" ng-options="route for route in home.availableRoutes" required></select>
+
+        <label>Gasto mensal atual (R$)</label>
+        <input type="number" step="0.01" ng-model="home.form.monthlyCostDefault" required>
+
+        <label>Investimento estimado (R$)</label>
+        <input type="number" step="0.01" ng-model="home.form.investmentDefault" required>
+
+        <button type="submit">Calcular Viabilidade</button>
+      </form>
+
+      <p class="premise">Premissas simplificadas de prototipo para demonstracao no hackathon. Nao representam recomendacao tecnica final.</p>
+    </aside>
+  </main>
+
+  <section class="results" ng-if="home.result">
+    <h2>Resultado</h2>
+    <div class="cards">
+      <article><h3>Custo atual anual</h3><p>{{ home.asCurrency(home.result.currentAnnualCost) }}</p></article>
+      <article><h3>Custo verde anual</h3><p>{{ home.asCurrency(home.result.greenAnnualCost) }}</p></article>
+      <article><h3>Economia anual</h3><p>{{ home.asCurrency(home.result.annualSavings) }}</p></article>
+      <article><h3>Payback</h3><p>{{ home.result.paybackYears !== null ? (home.result.paybackYears | number:2) + ' anos' : 'N/A' }}</p></article>
+      <article><h3>Reducao de emissoes</h3><p>{{ (home.result.emissionReduction * 100) | number:0 }}%</p></article>
+      <article><h3>Viabilidade</h3><p>{{ home.result.classification }}</p></article>
+    </div>
+
+    <article class="recommendation">
+      <h3>Recomendacao</h3>
+      <p>{{ home.result.recommendation }}</p>
+    </article>
+
+    <article class="report" ng-if="home.report">
+      <h3>Relatorio Executivo</h3>
+      <p><strong>Regiao:</strong> {{ home.report.region }}</p>
+      <p><strong>Setor:</strong> {{ home.report.sector }}</p>
+      <p><strong>Fonte atual:</strong> {{ home.report.currentSource }}</p>
+      <p><strong>Rota avaliada:</strong> {{ home.report.recommendedRoute }}</p>
+      <p><strong>Resumo:</strong> {{ home.report.summary }}</p>
+      <p><strong>Indicadores:</strong></p>
+      <ul>
+        <li>Custo atual anual: {{ home.asCurrency(home.report.metrics.currentAnnualCost) }}</li>
+        <li>Custo verde anual: {{ home.asCurrency(home.report.metrics.greenAnnualCost) }}</li>
+        <li>Economia anual: {{ home.asCurrency(home.report.metrics.annualSavings) }}</li>
+        <li>Payback: {{ home.report.metrics.paybackYears !== null ? (home.report.metrics.paybackYears | number:2) + ' anos' : 'N/A' }}</li>
+        <li>Reducao estimada de emissoes: {{ (home.report.metrics.emissionReduction * 100) | number:0 }}%</li>
+        <li>Viabilidade: {{ home.report.metrics.classification }}</li>
+      </ul>
+      <p><strong>Proximos passos:</strong></p>
+      <ol>
+        <li ng-repeat="step in home.report.nextSteps">{{ step }}</li>
+      </ol>
+    </article>
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ui-leaflet/2.0.0/ui-leaflet.min.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <script src="firebase.config.js"></script>
+  <script src="app.js"></script>
+
+  <script src="app/services/FirebaseDataService.js"></script>
+  <script src="app/services/MapDataService.js"></script>
+  <script src="app/services/ViabilityService.js"></script>
+  <script src="app/services/RecommendationService.js"></script>
+  <script src="app/services/ReportService.js"></script>
+
+  <script src="app/controllers/HomeController.js"></script>
+  <script src="app/controllers/MapController.js"></script>
+  <script src="app/controllers/SimulationController.js"></script>
+  <script src="app/controllers/ReportController.js"></script>
+</body>
+</html>

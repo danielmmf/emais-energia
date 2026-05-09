@@ -34,6 +34,12 @@
 - [ ] **SIM-06**: Sistema estima redução de emissões com base no fator da rota
 - [ ] **SIM-07**: Sistema classifica resultado em Alta, Média, Baixa, Estratégica ou Não recomendada no cenário atual
 
+### Dados e Firebase
+
+- [ ] **DATA-01**: Sistema lê oportunidades e premissas do Firebase Realtime Database quando configuração AngularFire estiver ativa
+- [ ] **DATA-02**: Sistema usa fallback local em JSON/GeoJSON quando Firebase não estiver disponível ou não configurado
+- [ ] **DATA-03**: Sistema registra simulações no Firebase quando ativo, sem bloquear fluxo quando estiver em fallback local
+
 ### Resultado e Relatório
 
 - [ ] **RES-01**: Usuário visualiza cards com custo atual anual, custo verde anual, investimento, economia anual, payback, redução e viabilidade
@@ -93,6 +99,9 @@
 | SIM-05 | Phase 3 | Pending |
 | SIM-06 | Phase 3 | Pending |
 | SIM-07 | Phase 3 | Pending |
+| DATA-01 | Phase 1 | Pending |
+| DATA-02 | Phase 1 | Pending |
+| DATA-03 | Phase 3 | Pending |
 | RES-01 | Phase 4 | Pending |
 | RES-02 | Phase 4 | Pending |
 | RPT-01 | Phase 4 | Pending |
@@ -101,10 +110,10 @@
 | TRN-03 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 23 total
-- Mapped to phases: 23
+- v1 requirements: 26 total
+- Mapped to phases: 26
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-09*
-*Last updated: 2026-05-09 after initial definition*
+*Last updated: 2026-05-09 after architecture update (AngularFire + Firebase fallback)*

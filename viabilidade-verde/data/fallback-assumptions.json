@@ -1,0 +1,38 @@
+{
+  "biometano": {
+    "label": "Biometano",
+    "costFactor": 0.68,
+    "emissionReduction": 0.5,
+    "risk": "Medio"
+  },
+  "eletrificacao": {
+    "label": "Eletrificacao",
+    "costFactor": 0.78,
+    "emissionReduction": 0.35,
+    "risk": "Medio"
+  },
+  "energia_renovavel_contratada": {
+    "label": "Energia renovavel contratada",
+    "costFactor": 0.82,
+    "emissionReduction": 0.25,
+    "risk": "Baixo"
+  },
+  "biomassa": {
+    "label": "Biomassa",
+    "costFactor": 0.72,
+    "emissionReduction": 0.45,
+    "risk": "Medio"
+  },
+  "hidrogenio_de_baixa_emissao": {
+    "label": "Hidrogenio de baixa emissao",
+    "costFactor": 1.15,
+    "emissionReduction": 0.65,
+    "risk": "Alto"
+  },
+  "saf": {
+    "label": "SAF",
+    "costFactor": 1.25,
+    "emissionReduction": 0.6,
+    "risk": "Alto"
+  }
+}

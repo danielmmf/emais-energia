@@ -1,0 +1,115 @@
+.sidebar h2 {
+  margin: 4px 0 10px;
+  font-size: 1.05rem;
+}
+
+.op-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  max-height: 190px;
+  overflow: auto;
+}
+
+.op-list li {
+  border: 1px solid #d9e8dc;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.op-list li.active {
+  border-color: #2f8a4b;
+  background: #eaf6ee;
+}
+
+.op-list small {
+  display: block;
+  color: #557362;
+  margin-top: 4px;
+}
+
+label {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 0.9rem;
+  color: #385645;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  border: 1px solid #cadccf;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+button {
+  margin-top: 10px;
+  background: #2f8a4b;
+  border-color: #2f8a4b;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.error {
+  color: #a32626;
+}
+
+.premise {
+  margin-top: 12px;
+  font-size: 0.84rem;
+  color: #4c6858;
+}
+
+.results {
+  margin: 0 24px 20px;
+  padding: 14px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cards article {
+  border: 1px solid #d9e8dc;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.cards h3 {
+  margin: 0 0 4px;
+  font-size: 0.86rem;
+  color: #3a5847;
+}
+
+.cards p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.recommendation,
+.report {
+  margin-top: 14px;
+  border: 1px solid #d9e8dc;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+@media (max-width: 980px) {
+  .cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

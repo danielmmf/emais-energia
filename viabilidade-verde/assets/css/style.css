@@ -1,0 +1,57 @@
+:root {
+  --bg: #eef4ef;
+  --surface: #ffffff;
+  --ink: #102818;
+  --muted: #4a6654;
+  --brand: #2f8a4b;
+  --brand-strong: #206839;
+  --danger: #a32626;
+  --line: #d5e4d8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 10% 10%, #f6fbf6 0, #eef4ef 45%, #e7f1e8 100%);
+}
+
+.topbar {
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.tagline {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.chip {
+  font-size: 0.86rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #f2f8f3;
+}
+
+.chip-live {
+  border-color: #6db383;
+  background: #dff2e5;
+}
+
+.chip-fallback {
+  border-color: #c4cfd9;
+  background: #eff4f8;
+}

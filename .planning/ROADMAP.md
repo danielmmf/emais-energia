@@ -12,7 +12,7 @@ Entregar um MVP demonstrável que converte exploração territorial em decisão 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Setup e Base Visual** - Estruturar app AngularJS, landing inicial, mapa base e dados mockados iniciais
+- [ ] **Phase 1: Setup e Base Visual** - Estruturar app AngularJS/AngularFire, landing inicial, mapa base e fallback de dados
 - [ ] **Phase 2: Camadas e Interação Territorial** - Implementar camadas, clusters, regiões e painel lateral acionável
 - [ ] **Phase 3: Simulador de Viabilidade** - Implementar formulário, motor de cálculo e classificação
 - [ ] **Phase 4: Resultado e Relatório Executivo** - Exibir cards, recomendação textual e relatório em tela
@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Goal**: Entregar base navegável do produto com proposta de valor clara e mapa inicial funcional
 **Mode:** mvp
 **Depends on**: Nothing (first phase)
-**Requirements**: [LAND-01, LAND-02, MAP-01]
+**Requirements**: [LAND-01, LAND-02, MAP-01, DATA-01, DATA-02]
 **Success Criteria** (what must be TRUE):
   1. Usuário abre a aplicação e entende proposta em menos de 1 minuto
   2. CTA "Explorar mapa" leva para o mapa sem erros de navegação
@@ -32,9 +32,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Criar estrutura AngularJS 1.x e layout base (landing + shell da aplicação)
-- [ ] 01-02: Integrar Leaflet e configurar mapa inicial do Brasil
-- [ ] 01-03: Criar base de dados mockados e carregamento inicial no frontend
+- [ ] 01-01: Criar estrutura AngularJS 1.x + AngularFire e layout base (landing + shell da aplicação)
+- [ ] 01-02: Integrar Leaflet/ui-leaflet e configurar mapa inicial do Brasil
+- [ ] 01-03: Implementar carregamento de dados com Firebase opcional e fallback local JSON/GeoJSON
 
 ### Phase 2: Camadas e Interação Territorial
 **Goal**: Permitir leitura territorial prática com camadas úteis e contexto lateral para iniciar simulação
@@ -57,7 +57,7 @@ Plans:
 **Goal**: Entregar cálculo econômico completo e classificação de viabilidade para rotas verdes
 **Mode:** mvp
 **Depends on**: Phase 2
-**Requirements**: [SIM-01, SIM-02, SIM-03, SIM-04, SIM-05, SIM-06, SIM-07]
+**Requirements**: [SIM-01, SIM-02, SIM-03, SIM-04, SIM-05, SIM-06, SIM-07, DATA-03]
 **Success Criteria** (what must be TRUE):
   1. Usuário preenche/ajusta cenário atual e rota verde no simulador
   2. Sistema calcula corretamente custo atual, custo verde, economia anual e payback
@@ -67,7 +67,7 @@ Plans:
 Plans:
 - [ ] 03-01: Implementar formulário de simulação com pré-preenchimento por oportunidade
 - [ ] 03-02: Implementar serviço de cálculo com fatores mockados por rota
-- [ ] 03-03: Implementar regras de classificação e tratamento de cenários não recomendados
+- [ ] 03-03: Implementar regras de classificação, persistência de simulação no Firebase (quando ativo) e fallback resiliente
 
 ### Phase 4: Resultado e Relatório Executivo
 **Goal**: Transformar cálculo em decisão clara com cards, recomendação acionável e relatório para reunião

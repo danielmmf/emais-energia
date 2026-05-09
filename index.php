@@ -150,6 +150,7 @@ $mentorName = $isAuthenticated ? (string) $_SESSION['mentor_name'] : '';
       <h2>Pagina inicial da solucao</h2>
       <p>Aqui vai entrar a solucao completa do desafio Hackathon E+.</p>
       <p>No momento, esta area esta em validacao e preparacao de demo.</p>
+      <p><a href="/viabilidade-verde/" style="color:#8bd464;font-weight:700;">Acessar prototipo Viabilidade Verde</a></p>
 
       <form method="post">
         <button type="submit" name="logout" value="1" class="logout">Sair</button>

@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-05-09)
 Phase: 1 of 5 (Setup e Base Visual)
 Plan: 0 of 3 in current phase
 Status: Ready to plan
-Last activity: 2026-05-09 — Project initialization completed with requirements and roadmap baseline
+Last activity: 2026-05-09 — AngularFire/Firebase architecture update and scaffold baseline created
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -43,6 +43,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 - [Phase 0]: Leaflet + AngularJS for lightweight, browser-first MVP
+- [Phase 0]: AngularFire + Firebase Realtime Database com fallback local para resiliência de demo
 - [Phase 0]: Demo case prioritizes Goias + biometano + fertilizantes
 
 ### Pending Todos

@@ -3,14 +3,14 @@
 
 **Viabilidade Verde**
 
-Viabilidade Verde é uma aplicação web leve para apoiar decisões de transição energética com foco em viabilidade econômica. A solução combina mapa interativo inspirado na PID com simulador financeiro para responder, de forma prática, se uma rota verde fecha a conta para um perfil empresarial e territorial específico. O público principal são empresas industriais, gestores e investidores que precisam justificar decisões com custo, retorno e emissões.
+Viabilidade Verde é uma aplicação web leve para apoiar decisões de transição energética com foco em viabilidade econômica. A solução combina mapa interativo inspirado na PID com simulador financeiro para responder, de forma prática, se uma rota verde fecha a conta para um perfil empresarial e territorial específico. O produto usa AngularJS + AngularFire + Firebase com fallback local em JSON para preservar demonstrabilidade mesmo sem configuração externa.
 
 **Core Value:** Transformar dados territoriais e energéticos em uma resposta objetiva de viabilidade econômica: a transição fecha a conta?
 
 ### Constraints
 
 - **Timeline**: Janela curta de hackathon — priorizar fluxo fim-a-fim antes de refinamentos
-- **Tech stack**: AngularJS 1.x + Leaflet + MarkerCluster — manter aderência à proposta técnica definida
+- **Tech stack**: AngularJS 1.x + AngularFire + Firebase Realtime Database + Leaflet/ui-leaflet/MarkerCluster — manter aderência à proposta técnica definida
 - **Data quality**: Dados mockados inspirados na PID/Atlas — transparência obrigatória sobre premissas
 - **Performance**: Aplicação leve, browser-first e sem backend mandatório no MVP
 - **Scope control**: Evitar dispersão para integrações complexas e features fora do core de viabilidade

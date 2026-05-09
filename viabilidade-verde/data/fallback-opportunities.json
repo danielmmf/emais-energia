@@ -1,0 +1,26 @@
+[
+  {
+    "id": "goias-biometano-fertilizantes",
+    "name": "Goias - Biometano para Fertilizantes",
+    "region": "Goias",
+    "sector": "Agroindustria / Fertilizantes",
+    "currentSource": "Gas natural",
+    "recommendedRoute": "Biometano",
+    "monthlyCostDefault": 200000,
+    "investmentDefault": 1800000,
+    "lat": -16.6869,
+    "lng": -49.2648
+  },
+  {
+    "id": "ceara-eletrificacao-cimento",
+    "name": "Ceara - Eletrificacao para Cimento",
+    "region": "Ceara",
+    "sector": "Cimento",
+    "currentSource": "Diesel",
+    "recommendedRoute": "Eletrificacao",
+    "monthlyCostDefault": 140000,
+    "investmentDefault": 2200000,
+    "lat": -3.7319,
+    "lng": -38.5267
+  }
+]

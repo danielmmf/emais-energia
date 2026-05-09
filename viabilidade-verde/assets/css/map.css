@@ -1,0 +1,34 @@
+.layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  padding: 16px 24px;
+}
+
+.map-panel,
+.sidebar,
+.results {
+  background: #fff;
+  border: 1px solid #d5e4d8;
+  border-radius: 12px;
+}
+
+.map-panel {
+  padding: 12px;
+}
+
+.helper {
+  margin: 8px 0 0;
+  color: #4a6654;
+  font-size: 0.9rem;
+}
+
+.sidebar {
+  padding: 14px;
+}
+
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

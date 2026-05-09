@@ -1,0 +1,20 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Goias",
+        "vocacao": "Agroindustria / Fertilizantes",
+        "potencialEnergetico": "Alto",
+        "infraestrutura": "Media",
+        "rotaSugerida": "Biometano",
+        "risco": "Medio"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-49.2648, -16.6869]
+      }
+    }
+  ]
+}

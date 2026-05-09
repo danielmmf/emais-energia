@@ -8,6 +8,24 @@ Arquivos principais:
 - `deploy/pull.php`: endpoint de deploy que roda `git pull origin main` via POST.
 - `logs/mentor-access.log`: registro de acessos autorizados (nome, data/hora, IP e user-agent).
 
+## Base técnica do MVP
+
+Aplicação em `viabilidade-verde/` com:
+- AngularJS 1.x
+- AngularFire + Firebase Realtime Database (opcional)
+- Leaflet + ui-leaflet
+- Fallback local em `data/*.json` quando Firebase estiver desativado
+
+### Entrada da aplicação
+
+- `https://emais-energia.devinhas.com.br/viabilidade-verde/`
+
+### Firebase opcional
+
+Edite `viabilidade-verde/firebase.config.js`:
+- `window.VV_FIREBASE_ENABLED = true` para ativar Firebase.
+- Se `false`, a aplicação usa fallback local automaticamente.
+
 ## Configurar acesso de mentores
 
 1. Gere novo hash de senha:
