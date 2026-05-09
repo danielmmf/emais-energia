@@ -4,6 +4,7 @@
     {
       "type": "Feature",
       "properties": {
+        "id": "region-goias",
         "name": "Goias",
         "vocacao": "Agroindustria / Fertilizantes",
         "potencialEnergetico": "Alto",
@@ -12,8 +13,120 @@
         "risco": "Medio"
       },
       "geometry": {
-        "type": "Point",
-        "coordinates": [-49.2648, -16.6869]
+        "type": "Polygon",
+        "coordinates": [[[-51.8, -19.2], [-46.8, -19.2], [-46.8, -14.0], [-51.8, -14.0], [-51.8, -19.2]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "region-ceara",
+        "name": "Ceara",
+        "vocacao": "Portuario / Hidrogenio",
+        "potencialEnergetico": "Alto",
+        "infraestrutura": "Media",
+        "rotaSugerida": "Hidrogenio de baixa emissao",
+        "risco": "Alto"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-40.1, -7.9], [-37.0, -7.9], [-37.0, -2.6], [-40.1, -2.6], [-40.1, -7.9]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "region-bahia",
+        "name": "Bahia",
+        "vocacao": "Biomassa / Cimento",
+        "potencialEnergetico": "Alto",
+        "infraestrutura": "Media",
+        "rotaSugerida": "Biomassa",
+        "risco": "Medio"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-46.8, -18.4], [-37.2, -18.4], [-37.2, -8.5], [-46.8, -8.5], [-46.8, -18.4]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "region-sao-paulo",
+        "name": "Sao Paulo",
+        "vocacao": "Portos / Industria pesada",
+        "potencialEnergetico": "Medio",
+        "infraestrutura": "Alta",
+        "rotaSugerida": "Energia renovavel contratada",
+        "risco": "Baixo"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-53.1, -25.8], [-44.1, -25.8], [-44.1, -19.6], [-53.1, -19.6], [-53.1, -25.8]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "region-minas-gerais",
+        "name": "Minas Gerais",
+        "vocacao": "Mineracao / Eletrificacao",
+        "potencialEnergetico": "Medio",
+        "infraestrutura": "Alta",
+        "rotaSugerida": "Eletrificacao",
+        "risco": "Medio"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-51.2, -22.9], [-39.7, -22.9], [-39.7, -14.0], [-51.2, -14.0], [-51.2, -22.9]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "region-pernambuco",
+        "name": "Pernambuco",
+        "vocacao": "Refino / SAF",
+        "potencialEnergetico": "Medio",
+        "infraestrutura": "Media",
+        "rotaSugerida": "SAF",
+        "risco": "Alto"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-41.6, -9.5], [-34.8, -9.5], [-34.8, -7.2], [-41.6, -7.2], [-41.6, -9.5]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "region-rio-de-janeiro",
+        "name": "Rio de Janeiro",
+        "vocacao": "Petroquimica / Renovavel",
+        "potencialEnergetico": "Medio",
+        "infraestrutura": "Alta",
+        "rotaSugerida": "Energia renovavel contratada",
+        "risco": "Baixo"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-44.9, -23.4], [-40.9, -23.4], [-40.9, -20.6], [-44.9, -20.6], [-44.9, -23.4]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "region-parana",
+        "name": "Parana",
+        "vocacao": "Fertilizantes / Biometano",
+        "potencialEnergetico": "Alto",
+        "infraestrutura": "Media",
+        "rotaSugerida": "Biometano",
+        "risco": "Medio"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-54.5, -26.8], [-48.0, -26.8], [-48.0, -22.4], [-54.5, -22.4], [-54.5, -26.8]]]
       }
     }
   ]

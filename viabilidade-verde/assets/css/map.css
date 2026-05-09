@@ -17,6 +17,48 @@
   padding: 12px;
 }
 
+.layer-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.layer-chip {
+  width: auto;
+  border: 1px solid #2f8a4b;
+  border-radius: 999px;
+  background: #eaf6ee;
+  color: #1b5e2d;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.layer-chip.off {
+  border-color: #9eb6a5;
+  background: #f3f7f4;
+  color: #5c7264;
+}
+
+.leaflet-container {
+  border-radius: 10px;
+}
+
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background-color: rgba(47, 138, 75, 0.24);
+}
+
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+  background-color: rgba(47, 138, 75, 0.72);
+  color: #fff;
+  font-weight: 700;
+}
+
 .helper {
   margin: 8px 0 0;
   color: #4a6654;

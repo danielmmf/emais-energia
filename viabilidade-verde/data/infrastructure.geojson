@@ -1,0 +1,41 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "infra-gasoduto-nordeste",
+        "name": "Gasoduto Nordeste",
+        "kind": "Gasoduto"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[-38.52, -3.73], [-40.33, -6.76], [-34.88, -8.05]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "infra-corredor-centro-sudeste",
+        "name": "Corredor Centro-Sudeste",
+        "kind": "Transmissao"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[-49.26, -16.69], [-43.93, -19.92], [-46.33, -23.96]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "infra-corredor-sul-logistico",
+        "name": "Corredor Sul Logistico",
+        "kind": "Ferrovia"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[-49.27, -25.42], [-43.17, -22.90], [-46.33, -23.96]]
+      }
+    }
+  ]
+}

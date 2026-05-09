@@ -7,7 +7,8 @@
       fallback: {
         opportunitiesUrl: 'data/fallback-opportunities.json',
         assumptionsUrl: 'data/fallback-assumptions.json',
-        regionsUrl: 'data/regions.geojson'
+        regionsUrl: 'data/regions.geojson',
+        infrastructureUrl: 'data/infrastructure.geojson'
       }
     });
 })();

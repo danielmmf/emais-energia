@@ -15,6 +15,8 @@
     this.isFirebaseEnabled = isFirebaseEnabled;
     this.getOpportunities = getOpportunities;
     this.getAssumptions = getAssumptions;
+    this.getRegions = getRegions;
+    this.getInfrastructure = getInfrastructure;
     this.saveSimulation = saveSimulation;
     this.retryPendingSimulations = retryPendingSimulations;
 
@@ -75,6 +77,38 @@
       }
 
       return loadFallback(APP_SETTINGS.fallback.assumptionsUrl);
+    }
+
+    function getRegions() {
+      if (isFirebaseEnabled()) {
+        var ref = window.firebase.database().ref('regions');
+        return $firebaseObject(ref).$loaded().then(function (data) {
+          if (data && Array.isArray(data.features)) {
+            return data;
+          }
+          return loadFallback(APP_SETTINGS.fallback.regionsUrl);
+        }).catch(function () {
+          return loadFallback(APP_SETTINGS.fallback.regionsUrl);
+        });
+      }
+
+      return loadFallback(APP_SETTINGS.fallback.regionsUrl);
+    }
+
+    function getInfrastructure() {
+      if (isFirebaseEnabled()) {
+        var ref = window.firebase.database().ref('infrastructure');
+        return $firebaseObject(ref).$loaded().then(function (data) {
+          if (data && Array.isArray(data.features)) {
+            return data;
+          }
+          return loadFallback(APP_SETTINGS.fallback.infrastructureUrl);
+        }).catch(function () {
+          return loadFallback(APP_SETTINGS.fallback.infrastructureUrl);
+        });
+      }
+
+      return loadFallback(APP_SETTINGS.fallback.infrastructureUrl);
     }
 
     function saveSimulation(payload) {

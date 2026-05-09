@@ -26,8 +26,22 @@
 
   <main class="layout">
     <section class="map-panel">
-      <leaflet center="home.map.center" defaults="home.map.defaults" markers="home.map.markers" height="420px"></leaflet>
-      <p class="helper">Selecione uma oportunidade na lista para preencher o simulador.</p>
+      <div class="layer-toolbar">
+        <button type="button" class="layer-chip" ng-repeat="(key, layer) in home.layerToggles" ng-click="home.toggleLayer(key)" ng-class="{'off': !layer.visible}">
+          {{ layer.visible ? 'ON' : 'OFF' }} {{ layer.label }}
+        </button>
+      </div>
+
+      <leaflet
+        center="home.map.center"
+        defaults="home.map.defaults"
+        layers="home.map.layers"
+        markers="home.map.markers"
+        paths="home.map.paths"
+        event-broadcast="home.map.events"
+        height="460px">
+      </leaflet>
+      <p class="helper">Clique em um marcador, cluster ou regiao para abrir o contexto territorial.</p>
     </section>
 
     <aside class="sidebar">
@@ -42,28 +56,43 @@
         </li>
       </ul>
 
-      <h2>Simulador</h2>
-      <form ng-submit="home.calculate()">
-        <label>Regiao</label>
-        <input type="text" ng-model="home.form.region" required>
+      <h2>Contexto territorial</h2>
+      <div class="context-card" ng-if="home.selectedOpportunity || home.selectedRegion">
+        <p><strong>Regiao:</strong> {{ home.form.region }}</p>
+        <p><strong>Setor:</strong> {{ home.form.sector }}</p>
+        <p><strong>Fonte atual sugerida:</strong> {{ home.form.currentSource }}</p>
+        <p><strong>Rota verde sugerida:</strong> {{ home.form.recommendedRoute }}</p>
+        <p><strong>Potencial territorial:</strong> {{ (home.selectedRegion && home.selectedRegion.potencialEnergetico) || 'Nao informado' }}</p>
+        <p><strong>Infraestrutura:</strong> {{ (home.selectedRegion && home.selectedRegion.infraestrutura) || 'Nao informada' }}</p>
+        <p><strong>Risco inicial:</strong> {{ (home.selectedRegion && home.selectedRegion.risco) || 'Nao informado' }}</p>
+        <button type="button" ng-click="home.startSimulation()">Calcular Viabilidade</button>
+      </div>
+      <p class="helper" ng-if="!home.selectedOpportunity && !home.selectedRegion">Selecione uma oportunidade ou clique em uma regiao no mapa.</p>
 
-        <label>Setor</label>
-        <input type="text" ng-model="home.form.sector" required>
+      <section ng-if="home.simulationReady">
+        <h2>Simulador</h2>
+        <form ng-submit="home.calculate()">
+          <label>Regiao</label>
+          <input type="text" ng-model="home.form.region" required>
 
-        <label>Fonte atual</label>
-        <input type="text" ng-model="home.form.currentSource" required>
+          <label>Setor</label>
+          <input type="text" ng-model="home.form.sector" required>
 
-        <label>Rota verde</label>
-        <select ng-model="home.form.recommendedRoute" ng-options="route for route in home.availableRoutes" required></select>
+          <label>Fonte atual</label>
+          <input type="text" ng-model="home.form.currentSource" required>
 
-        <label>Gasto mensal atual (R$)</label>
-        <input type="number" step="0.01" ng-model="home.form.monthlyCostDefault" required>
+          <label>Rota verde</label>
+          <select ng-model="home.form.recommendedRoute" ng-options="route for route in home.availableRoutes" required></select>
 
-        <label>Investimento estimado (R$)</label>
-        <input type="number" step="0.01" ng-model="home.form.investmentDefault" required>
+          <label>Gasto mensal atual (R$)</label>
+          <input type="number" step="0.01" ng-model="home.form.monthlyCostDefault" required>
 
-        <button type="submit">Calcular Viabilidade</button>
-      </form>
+          <label>Investimento estimado (R$)</label>
+          <input type="number" step="0.01" ng-model="home.form.investmentDefault" required>
+
+          <button type="submit">Executar simulacao</button>
+        </form>
+      </section>
 
       <p class="premise">Premissas simplificadas de prototipo para demonstracao no hackathon. Nao representam recomendacao tecnica final.</p>
     </aside>
