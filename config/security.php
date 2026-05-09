@@ -12,13 +12,13 @@ declare(strict_types=1);
  */
 
 return [
-    'mentor_password_hash' => '$2y$10$iWabvRkAXfnH0LNeNE9m6OWnisN6j8EMhD4M95vMqzenHb6rpm.8a', // ALTERAR_SENHA_MENTOR
+    'mentor_password_hash' => '$2y$10$.L3b3Ukbn0Jl0UhA.qycHORfVcXUcxD3Em7J5m35QEFZt6njD7pZ6', // baconpedacudo
     'mentor_names' => [
         // Exemplo: 'Maria Souza',
         // Exemplo: 'Joao Lima',
     ],
 
-    'deploy_token_hash' => '$2y$10$7lh2S8yI.27TdlQhgSeqhOEZJg08xGnIP/osD3NepUbzu5gm2NnnG', // ALTERAR_TOKEN_DEPLOY
+    'deploy_token_hash' => '$2y$10$eb.Gfgk1oHmolnujlsXtOO4o/g26uOLag4P5ikmKvvKS3.GZxnToi', // baconpedacudo
     'deploy_allowed_ips' => [
         // Exemplo: '127.0.0.1',
         // Exemplo: '200.100.50.10',
