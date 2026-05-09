@@ -68,12 +68,20 @@ if [ -z "$CHAT_IDS" ]; then
   exit 0
 fi
 
+SENT_COUNT=0
 while IFS= read -r cid; do
   [ -n "$cid" ] || continue
-  curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+  if curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
     -d "chat_id=${cid}" \
     --data-urlencode "text=${MESSAGE}" \
-    -d "parse_mode=Markdown" >/dev/null
+    -d "parse_mode=Markdown" >/dev/null; then
+    SENT_COUNT=$((SENT_COUNT + 1))
+  fi
 done <<< "$CHAT_IDS"
 
-echo "telegram_ok"
+if [ "${SENT_COUNT:-0}" -eq 0 ]; then
+  echo "telegram_warn: none message sent"
+  exit 0
+fi
+
+echo "telegram_ok sent=${SENT_COUNT}"
