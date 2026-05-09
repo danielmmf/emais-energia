@@ -5,10 +5,25 @@ declare(strict_types=1);
 session_start();
 
 $config = require __DIR__ . '/config/security.php';
-$mentorNames = array_values(array_filter(array_map('trim', $config['mentor_names'] ?? [])));
-$nameLookup = [];
-foreach ($mentorNames as $mentorName) {
-    $nameLookup[mb_strtolower($mentorName)] = $mentorName;
+
+/**
+ * Registra acessos autorizados para auditoria simples.
+ */
+function logMentorAccess(string $name): void
+{
+    $logDir = __DIR__ . '/logs';
+    if (!is_dir($logDir)) {
+        mkdir($logDir, 0775, true);
+    }
+
+    $line = sprintf(
+        "[%s] name=%s ip=%s ua=%s\n",
+        date('c'),
+        str_replace(["\n", "\r"], ' ', $name),
+        (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'),
+        str_replace(["\n", "\r"], ' ', (string) ($_SERVER['HTTP_USER_AGENT'] ?? 'unknown'))
+    );
+    file_put_contents($logDir . '/mentor-access.log', $line, FILE_APPEND | LOCK_EX);
 }
 
 if (isset($_POST['logout'])) {
@@ -19,27 +34,26 @@ if (isset($_POST['logout'])) {
 
 $error = null;
 
-if (!empty($_POST['mentor_name']) && isset($_POST['mentor_password'])) {
+if (isset($_POST['mentor_password'])) {
     $typedName = trim((string) $_POST['mentor_name']);
     $typedPassword = (string) $_POST['mentor_password'];
 
-    $normalizedName = mb_strtolower($typedName);
-    $isNameAllowed = isset($nameLookup[$normalizedName]);
     $isPasswordValid = password_verify($typedPassword, (string) ($config['mentor_password_hash'] ?? ''));
 
-    if ($isNameAllowed && $isPasswordValid) {
+    if ($isPasswordValid) {
+        $displayName = $typedName !== '' ? $typedName : 'Nao informado';
         $_SESSION['mentor_authenticated'] = true;
-        $_SESSION['mentor_name'] = $nameLookup[$normalizedName];
+        $_SESSION['mentor_name'] = $displayName;
+        logMentorAccess($displayName);
         header('Location: /');
         exit;
     }
 
-    $error = 'Acesso negado. Verifique nome do mentor e senha.';
+    $error = 'Acesso negado. Verifique a senha.';
 }
 
 $isAuthenticated = !empty($_SESSION['mentor_authenticated']) && !empty($_SESSION['mentor_name']);
 $mentorName = $isAuthenticated ? (string) $_SESSION['mentor_name'] : '';
-$isSetupReady = !empty($mentorNames);
 ?>
 <!doctype html>
 <html lang="pt-BR">
@@ -144,12 +158,6 @@ $isSetupReady = !empty($mentorNames);
       <div class="notice">
         Acesso temporariamente restrito. Esta area esta bloqueada para competidores.
       </div>
-
-      <?php if (!$isSetupReady): ?>
-        <div class="error">
-          Lista de mentores ainda nao configurada em <code>config/security.php</code>.
-        </div>
-      <?php endif; ?>
 
       <?php if ($error): ?>
         <div class="error"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>

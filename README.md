@@ -3,16 +3,16 @@
 ## Viabilidade Verde - acesso temporário
 
 Arquivos principais:
-- `index.php`: página inicial bloqueada por nome de mentor + senha.
-- `config/security.php`: configuração de mentores, hash de senha e token do deploy.
+- `index.php`: página inicial bloqueada por senha e com log de acesso por nome informado.
+- `config/security.php`: hash de senha e token do deploy.
 - `deploy/pull.php`: endpoint de deploy que roda `git pull origin main` via POST.
+- `logs/mentor-access.log`: registro de acessos autorizados (nome, data/hora, IP e user-agent).
 
 ## Configurar acesso de mentores
 
-1. Edite `config/security.php` e preencha `mentor_names`.
-2. Gere novo hash de senha:
+1. Gere novo hash de senha:
    - `php -r "echo password_hash('SUA_SENHA_FORTE', PASSWORD_DEFAULT), PHP_EOL;"`
-3. Substitua `mentor_password_hash` pelo hash gerado.
+2. Substitua `mentor_password_hash` pelo hash gerado.
 
 ## Configurar endpoint de deploy
 
