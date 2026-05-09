@@ -29,6 +29,7 @@ BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
 CHAT_ID="${TELEGRAM_CHAT_ID:-}"
 MESSAGE="${1:-}"
 CACHE_FILE=".planning/reports/telegram_chat_ids.txt"
+STATE_FILE=".planning/reports/telegram_worker_state.json"
 
 if [ -z "$BOT_TOKEN" ]; then
   echo "telegram_skip: TELEGRAM_BOT_TOKEN missing"
@@ -46,17 +47,11 @@ resolve_chat_ids() {
     return 0
   fi
 
-  local from_updates=""
-  from_updates=$(
-    curl -fsS "https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?timeout=1" \
-      | jq -r '[.result[]?.message?.chat?.id, .result[]?.channel_post?.chat?.id, .result[]?.edited_message?.chat?.id] | map(select(. != null)) | unique | .[]'
-  )
-
   mkdir -p .planning/reports
   touch "$CACHE_FILE"
 
-  if [ -n "$from_updates" ]; then
-    printf "%s\n" "$from_updates" >> "$CACHE_FILE"
+  if [ -f "$STATE_FILE" ]; then
+    jq -r '.knownChats[]? // empty' "$STATE_FILE" >> "$CACHE_FILE" || true
   fi
 
   sort -u "$CACHE_FILE"
