@@ -8,6 +8,11 @@ Arquivos principais:
 - `deploy/pull.php`: endpoint de deploy que roda `git pull origin main` via POST.
 - `logs/mentor-access.log`: registro de acessos autorizados (nome, data/hora, IP e user-agent).
 
+Fluxo de entrada:
+- Login na landing redireciona automaticamente para `/viabilidade-verde/`.
+- Se o redirecionamento automático falhar, a landing exibe link manual para `/viabilidade-verde/`.
+- Logout encerra a sessão de mentor e envia para `/viabilidade-verde/?visitor=1`.
+
 ## Base técnica do MVP
 
 Aplicação em `viabilidade-verde/` com:
@@ -19,6 +24,14 @@ Aplicação em `viabilidade-verde/` com:
 ### Entrada da aplicação
 
 - `https://emais-energia.devinhas.com.br/viabilidade-verde/`
+
+## Skills locais solicitadas
+
+- `.codex/skills/seo-write/SKILL.md`
+- `.codex/skills/epic-brand/SKILL.md`
+- `.codex/skills/frontend-design/SKILL.md`
+- `.codex/skills/agent-browser/SKILL.md`
+- `.codex/skills/web-design/SKILL.md`
 
 ### Firebase opcional
 

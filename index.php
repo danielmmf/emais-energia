@@ -28,7 +28,7 @@ function logMentorAccess(string $name): void
 
 if (isset($_POST['logout'])) {
     unset($_SESSION['mentor_authenticated'], $_SESSION['mentor_name']);
-    header('Location: /');
+    header('Location: /viabilidade-verde/?visitor=1');
     exit;
 }
 
@@ -45,7 +45,7 @@ if (isset($_POST['mentor_password'])) {
         $_SESSION['mentor_authenticated'] = true;
         $_SESSION['mentor_name'] = $displayName;
         logMentorAccess($displayName);
-        header('Location: /');
+        header('Location: /viabilidade-verde/');
         exit;
     }
 
@@ -147,10 +147,14 @@ $mentorName = $isAuthenticated ? (string) $_SESSION['mentor_name'] : '';
       <div class="notice">
         <strong>Acesso liberado para mentor:</strong> <?= htmlspecialchars($mentorName, ENT_QUOTES, 'UTF-8') ?>
       </div>
-      <h2>Pagina inicial da solucao</h2>
-      <p>Aqui vai entrar a solucao completa do desafio Hackathon E+.</p>
-      <p>No momento, esta area esta em validacao e preparacao de demo.</p>
-      <p><a href="/viabilidade-verde/" style="color:#8bd464;font-weight:700;">Acessar prototipo Viabilidade Verde</a></p>
+      <h2>Redirecionando para o prototipo</h2>
+      <p>Se o redirecionamento automatico falhar, use o link manual abaixo.</p>
+      <p><a href="/viabilidade-verde/" style="color:#8bd464;font-weight:700;">Abrir /viabilidade-verde/</a></p>
+      <script>
+        window.setTimeout(function () {
+          window.location.href = '/viabilidade-verde/';
+        }, 150);
+      </script>
 
       <form method="post">
         <button type="submit" name="logout" value="1" class="logout">Sair</button>
