@@ -6,6 +6,7 @@
     .controller('HomeController', HomeController);
 
   HomeController.$inject = ['$q', 'FirebaseDataService', 'MapDataService', 'ViabilityService', 'RecommendationService', 'ReportService'];
+  var LAST_MAP_CENTER_KEY = 'vv.lastMapCenter';
 
   function HomeController($q, FirebaseDataService, MapDataService, ViabilityService, RecommendationService, ReportService) {
     var vm = this;
@@ -49,6 +50,7 @@
 
     function activate() {
       vm.firebaseEnabled = FirebaseDataService.isFirebaseEnabled();
+      restoreLastMapCenter();
 
       $q.all([
         FirebaseDataService.getOpportunities(),
@@ -61,14 +63,11 @@
         });
 
         vm.map.markers = MapDataService.buildMarkers(vm.opportunities);
-
-        if (vm.opportunities.length > 0) {
-          selectOpportunity(vm.opportunities[0]);
-        }
       }).catch(function (err) {
         vm.error = 'Falha ao carregar dados: ' + (err && err.message ? err.message : 'erro desconhecido');
       }).finally(function () {
         vm.loading = false;
+        FirebaseDataService.retryPendingSimulations();
       });
     }
 
@@ -85,6 +84,7 @@
         vm.map.center.lat = item.lat;
         vm.map.center.lng = item.lng;
         vm.map.center.zoom = 6;
+        persistLastMapCenter();
       }
     }
 
@@ -100,6 +100,8 @@
         source: vm.selectedOpportunity ? vm.selectedOpportunity.id : null,
         form: angular.copy(vm.form),
         result: angular.copy(vm.result)
+      }).finally(function () {
+        FirebaseDataService.retryPendingSimulations();
       });
     }
 
@@ -108,6 +110,37 @@
         style: 'currency',
         currency: 'BRL'
       });
+    }
+
+    function restoreLastMapCenter() {
+      try {
+        var raw = window.localStorage.getItem(LAST_MAP_CENTER_KEY);
+        if (!raw) {
+          return;
+        }
+
+        var savedCenter = JSON.parse(raw);
+        if (
+          savedCenter &&
+          typeof savedCenter.lat === 'number' &&
+          typeof savedCenter.lng === 'number' &&
+          typeof savedCenter.zoom === 'number'
+        ) {
+          vm.map.center.lat = savedCenter.lat;
+          vm.map.center.lng = savedCenter.lng;
+          vm.map.center.zoom = savedCenter.zoom;
+        }
+      } catch (err) {
+        window.localStorage.removeItem(LAST_MAP_CENTER_KEY);
+      }
+    }
+
+    function persistLastMapCenter() {
+      window.localStorage.setItem(LAST_MAP_CENTER_KEY, JSON.stringify({
+        lat: vm.map.center.lat,
+        lng: vm.map.center.lng,
+        zoom: vm.map.center.zoom
+      }));
     }
   }
 })();
