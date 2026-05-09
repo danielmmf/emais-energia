@@ -26,6 +26,42 @@ function logMentorAccess(string $name): void
     file_put_contents($logDir . '/mentor-access.log', $line, FILE_APPEND | LOCK_EX);
 }
 
+/**
+ * Espelha acessos de mentor para Firebase Realtime (best effort).
+ */
+function pushMentorAccessToFirebase(string $name, array $config): void
+{
+    $databaseUrl = trim((string) ($config['firebase_database_url'] ?? ''));
+    if ($databaseUrl === '') {
+        return;
+    }
+
+    $payload = [
+        'name' => $name,
+        'timestamp' => date('c'),
+        'ip' => (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'),
+        'userAgent' => str_replace(["\n", "\r"], ' ', (string) ($_SERVER['HTTP_USER_AGENT'] ?? 'unknown')),
+        'source' => 'landing',
+    ];
+
+    $url = rtrim($databaseUrl, '/') . '/mentorAccesses.json';
+    $options = [
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/json\r\n",
+            'content' => (string) json_encode($payload, JSON_UNESCAPED_UNICODE),
+            'timeout' => 2,
+            'ignore_errors' => true,
+        ],
+    ];
+
+    try {
+        @file_get_contents($url, false, stream_context_create($options));
+    } catch (Throwable $e) {
+        // Best effort: falha de espelhamento nao deve bloquear login.
+    }
+}
+
 if (isset($_POST['logout'])) {
     unset($_SESSION['mentor_authenticated'], $_SESSION['mentor_name']);
     header('Location: /viabilidade-verde/?visitor=1');
@@ -45,6 +81,7 @@ if (isset($_POST['mentor_password'])) {
         $_SESSION['mentor_authenticated'] = true;
         $_SESSION['mentor_name'] = $displayName;
         logMentorAccess($displayName);
+        pushMentorAccessToFirebase($displayName, $config);
         header('Location: /viabilidade-verde/');
         exit;
     }
@@ -150,6 +187,7 @@ $mentorName = $isAuthenticated ? (string) $_SESSION['mentor_name'] : '';
       <h2>Redirecionando para o prototipo</h2>
       <p>Se o redirecionamento automatico falhar, use o link manual abaixo.</p>
       <p><a href="/viabilidade-verde/" style="color:#8bd464;font-weight:700;">Abrir /viabilidade-verde/</a></p>
+      <p><a href="/monitor.php" style="color:#b7d2c3;font-weight:700;">Abrir monitor de operacoes</a></p>
       <script>
         window.setTimeout(function () {
           window.location.href = '/viabilidade-verde/';

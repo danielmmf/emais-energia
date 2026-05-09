@@ -18,4 +18,5 @@ return [
         // Exemplo: '127.0.0.1',
         // Exemplo: '200.100.50.10',
     ],
+    'firebase_database_url' => 'https://emais-energia-default-rtdb.firebaseio.com',
 ];

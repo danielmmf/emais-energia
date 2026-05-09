@@ -56,6 +56,30 @@ Para transformar respostas do Telegram em issues:
 - `TELEGRAM_CHAT_ID` e opcional: sem ele, o bot usa todos os chats ativos detectados.
 - Se for o primeiro uso, envie uma mensagem ao bot para registrar seu chat no cache local de envios.
 
+## Robô contínuo (Telegram + Groq + Firebase)
+
+Worker principal:
+- `scripts/bot/telegram_groq_worker.js`
+
+Comandos:
+- `npm run bot:start` inicia em background
+- `npm run bot:status` mostra PID e estado
+- `npm run bot:stop` para o worker
+
+O worker:
+- responde perguntas dos mentores via Groq;
+- registra mensagens e respostas no Firebase Realtime;
+- cria issue quando receber `/issue ...`;
+- atualiza `docs/consenso-mentores.md` com feedback relevante.
+
+## Monitor em tempo real
+
+- URL: `/monitor.php`
+- Mostra:
+  - status do worker;
+  - conversas de mentores;
+  - acessos da aplicação (`mentorAccesses`) em realtime.
+
 ### Firebase opcional
 
 Edite `viabilidade-verde/firebase.config.js`:
