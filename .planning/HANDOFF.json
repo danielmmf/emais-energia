@@ -1,0 +1,106 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-05-09T21:46:19Z",
+  "phase": "01",
+  "phase_name": "setup-e-base-visual",
+  "phase_dir": ".planning/phases/01-setup-e-base-visual",
+  "plan": 0,
+  "task": 0,
+  "total_tasks": 0,
+  "status": "paused",
+  "completed_tasks": [
+    {
+      "id": 1,
+      "name": "Automacao de deploy + Playwright em producao",
+      "status": "done",
+      "commit": "4cba5a7"
+    },
+    {
+      "id": 2,
+      "name": "Worker continuo Telegram + Groq + Firebase",
+      "status": "done",
+      "commit": "cc3945c"
+    },
+    {
+      "id": 3,
+      "name": "Mitigacoes de operacao do bot (notify non-blocking e conflito getUpdates)",
+      "status": "done",
+      "commit": "44a9ae3/03ba9b8"
+    },
+    {
+      "id": 4,
+      "name": "Publicacoes e validacao no ar",
+      "status": "in_progress",
+      "progress": "deploy:prod executado com Playwright passando; bot em execucao e monitor no ar"
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": 5,
+      "name": "Retomar fluxo GSD da proxima fase (discuss -> plan -> execute -> verify)",
+      "status": "not_started"
+    },
+    {
+      "id": 6,
+      "name": "Consolidar alteracoes locais do app (arquivos viabilidade-verde pendentes)",
+      "status": "not_started"
+    },
+    {
+      "id": 7,
+      "name": "Validar fluxo de feedback dos mentores via Telegram com criacao de issues",
+      "status": "not_started"
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Comando 'gsd-sdk query commit --help' gerou commit real inesperado",
+      "type": "technical",
+      "workaround": "Evitar chamar query commit para help; usar documentacao/skill ao inves do comando"
+    }
+  ],
+  "human_actions_pending": [
+    {
+      "action": "Mentores enviarem perguntas/feedback no Telegram para alimentar consenso",
+      "context": "worker ja esta ativo e respondendo",
+      "blocking": false
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Executar GSD direto sem perguntas desnecessarias e acionar Telegram apenas em checkpoints criticos",
+      "rationale": "reduzir friccao e acelerar entrega",
+      "phase": "01"
+    },
+    {
+      "decision": "Usar Firebase Realtime para monitor de conversas e acessos",
+      "rationale": "visibilidade ao vivo para mentores",
+      "phase": "01"
+    }
+  ],
+  "uncommitted_files": [
+    "deploy/pull.php",
+    "viabilidade-verde/app.js",
+    "viabilidade-verde/app/components/layer-control/.gitkeep",
+    "viabilidade-verde/app/components/map-view/.gitkeep",
+    "viabilidade-verde/app/components/report-view/.gitkeep",
+    "viabilidade-verde/app/components/result-cards/.gitkeep",
+    "viabilidade-verde/app/components/side-panel/.gitkeep",
+    "viabilidade-verde/app/components/simulation-panel/.gitkeep",
+    "viabilidade-verde/app/controllers/MapController.js",
+    "viabilidade-verde/app/controllers/ReportController.js",
+    "viabilidade-verde/app/controllers/SimulationController.js",
+    "viabilidade-verde/app/services/MapDataService.js",
+    "viabilidade-verde/app/services/RecommendationService.js",
+    "viabilidade-verde/app/services/ReportService.js",
+    "viabilidade-verde/app/services/ViabilityService.js",
+    "viabilidade-verde/assets/css/dashboard.css",
+    "viabilidade-verde/assets/css/map.css",
+    "viabilidade-verde/assets/css/style.css",
+    "viabilidade-verde/data/fallback-assumptions.json",
+    "viabilidade-verde/data/fallback-opportunities.json",
+    "viabilidade-verde/data/regions.geojson",
+    "viabilidade-verde/firebase.config.js"
+  ],
+  "next_action": "Retomar com $gsd-resume-work e iniciar discuss da proxima fase no modo direto com checkpoints apenas quando necessario.",
+  "context_notes": "Bot continuo estavel e monitor no ar. Precisamos retomar o fluxo de produto e consolidar os pendentes tecnicos do app sem perder operacao dos mentores."
+}
