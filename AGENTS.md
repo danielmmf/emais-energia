@@ -50,6 +50,9 @@ Use these entry points:
 - `/gsd-debug` for investigation and bug fixing
 - `/gsd-execute-phase` for planned phase work
 
+Before starting execution tasks for a phase, run `npm run gate:phase-issues` and review `.planning/reports/phase-<N>-issues.md`.
+Before each production publish, run `npm run deploy:prod` (push + production pull endpoint + Playwright smoke test + Telegram status).
+
 Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
 <!-- GSD:workflow-end -->
 

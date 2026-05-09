@@ -1,0 +1,19 @@
+{
+  "name": "emais",
+  "version": "1.0.0",
+  "description": "## Viabilidade Verde - acesso temporário",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test:e2e:prod",
+    "test:e2e:prod": "PLAYWRIGHT_BASE_URL=${PLAYWRIGHT_BASE_URL:-https://emais-energia.devinhas.com.br} npx playwright test tests/playwright/production.smoke.spec.js --reporter=line",
+    "gate:phase-issues": "bash scripts/ops/phase_issue_gate.sh",
+    "ops:telegram-to-issues": "bash scripts/ops/telegram_to_issues.sh",
+    "deploy:prod": "bash scripts/ops/publish_and_test.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}

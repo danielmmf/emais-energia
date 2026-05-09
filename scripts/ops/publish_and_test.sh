@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+load_env_file() {
+  [ -f .env ] || return 0
+  while IFS= read -r line; do
+    line="${line%$'\r'}"
+    [ -z "$line" ] && continue
+    case "$line" in
+      \#*) continue ;;
+    esac
+    case "$line" in
+      *=*)
+        key="${line%%=*}"
+        value="${line#*=}"
+        value="${value%\"}"
+        value="${value#\"}"
+        value="${value%\'}"
+        value="${value#\'}"
+        export "$key=$value"
+      ;;
+    esac
+  done < .env
+}
+
+load_env_file
+
+DEPLOY_URL="${DEPLOY_ENDPOINT_URL:-https://emais-energia.devinhas.com.br/deploy/pull.php}"
+DEPLOY_TOKEN="${DEPLOY_ENDPOINT_TOKEN:-baconpedacudo}"
+PLAYWRIGHT_BASE_URL="${PLAYWRIGHT_BASE_URL:-https://emais-energia.devinhas.com.br}"
+export PLAYWRIGHT_BASE_URL
+
+PHASE_INFO=$(bash scripts/ops/phase_issue_gate.sh)
+
+bash scripts/ops/telegram_notify.sh "🚀 Inicio deploy Viabilidade Verde\n${PHASE_INFO}\nBranch: $(git branch --show-current)"
+
+git push origin "$(git branch --show-current)"
+
+DEPLOY_OUTPUT=$(curl -fsS -X POST "$DEPLOY_URL" -d "token=${DEPLOY_TOKEN}")
+echo "$DEPLOY_OUTPUT" | jq -e '.ok == true' >/dev/null
+
+npx playwright test tests/playwright/production.smoke.spec.js --reporter=line
+
+bash scripts/ops/telegram_notify.sh "✅ Deploy e teste Playwright OK\nURL: ${PLAYWRIGHT_BASE_URL}"
+
+echo "publish_and_test_ok"

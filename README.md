@@ -32,6 +32,28 @@ Aplicação em `viabilidade-verde/` com:
 - `.codex/skills/frontend-design/SKILL.md`
 - `.codex/skills/agent-browser/SKILL.md`
 - `.codex/skills/web-design/SKILL.md`
+- `.codex/skills/phase-issue-gate/SKILL.md`
+- `.codex/skills/telegram-ops/SKILL.md`
+
+## Gate operacional (obrigatorio)
+
+Antes de iniciar tarefas da fase:
+
+1. Rodar `npm run gate:phase-issues`
+2. Ler `.planning/reports/phase-<N>-issues.md`
+3. Incluir as issues da fase no escopo ativo antes da execucao
+
+Para publicar cada alteracao:
+
+1. `npm run deploy:prod`
+2. O script faz: `git push` -> endpoint de pull -> Playwright em producao
+3. Envia notificacao de inicio/fim no Telegram
+
+Para transformar respostas do Telegram em issues:
+
+- `npm run ops:telegram-to-issues`
+- Mensagens no formato `/issue titulo da tarefa` viram issues no GitHub.
+- `TELEGRAM_CHAT_ID` e opcional: sem ele, o bot usa todos os chats ativos detectados.
 
 ### Firebase opcional
 
