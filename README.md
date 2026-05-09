@@ -54,6 +54,7 @@ Para transformar respostas do Telegram em issues:
 - `npm run ops:telegram-to-issues`
 - Mensagens no formato `/issue titulo da tarefa` viram issues no GitHub.
 - `TELEGRAM_CHAT_ID` e opcional: sem ele, o bot usa todos os chats ativos detectados.
+- Se for o primeiro uso, envie uma mensagem ao bot para registrar seu chat no cache local de envios.
 
 ### Firebase opcional
 

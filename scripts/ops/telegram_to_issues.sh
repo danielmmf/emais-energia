@@ -29,6 +29,7 @@ BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
 CHAT_ID="${TELEGRAM_CHAT_ID:-}"
 REPO="${GITHUB_REPOSITORY:-danielmmf/emais-energia}"
 STATE_FILE=".planning/reports/telegram_offset.txt"
+CHAT_CACHE_FILE=".planning/reports/telegram_chat_ids.txt"
 
 if [ -z "$BOT_TOKEN" ]; then
   echo "telegram_to_issues_skip: TELEGRAM_BOT_TOKEN missing"
@@ -42,6 +43,10 @@ fi
 
 RESP=$(curl -fsS "https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${offset}&timeout=1")
 echo "$RESP" | jq -e '.ok == true' >/dev/null
+mkdir -p .planning/reports
+touch "$CHAT_CACHE_FILE"
+echo "$RESP" | jq -r '[.result[]?.message?.chat?.id, .result[]?.channel_post?.chat?.id, .result[]?.edited_message?.chat?.id] | map(select(. != null)) | .[]' >> "$CHAT_CACHE_FILE" || true
+sort -u "$CHAT_CACHE_FILE" -o "$CHAT_CACHE_FILE"
 
 max_update_id=$offset
 created=0
