@@ -6,6 +6,7 @@
     .service('FirebaseDataService', FirebaseDataService);
 
   FirebaseDataService.$inject = ['$q', '$http', '$firebaseObject', '$firebaseArray', 'APP_SETTINGS'];
+  var PENDING_SIMULATIONS_KEY = 'vv.pendingSimulations';
 
   function FirebaseDataService($q, $http, $firebaseObject, $firebaseArray, APP_SETTINGS) {
     var firebaseEnabled = !!window.VV_FIREBASE_ENABLED;
@@ -15,6 +16,7 @@
     this.getOpportunities = getOpportunities;
     this.getAssumptions = getAssumptions;
     this.saveSimulation = saveSimulation;
+    this.retryPendingSimulations = retryPendingSimulations;
 
     function initializeFirebase() {
       if (!firebaseEnabled || initialized) {
@@ -48,12 +50,12 @@
             }
           });
           return result;
+        }).catch(function () {
+          return loadFallback(APP_SETTINGS.fallback.opportunitiesUrl);
         });
       }
 
-      return $http.get(APP_SETTINGS.fallback.opportunitiesUrl).then(function (response) {
-        return response.data;
-      });
+      return loadFallback(APP_SETTINGS.fallback.opportunitiesUrl);
     }
 
     function getAssumptions() {
@@ -67,21 +69,93 @@
             }
           });
           return result;
+        }).catch(function () {
+          return loadFallback(APP_SETTINGS.fallback.assumptionsUrl);
         });
       }
 
-      return $http.get(APP_SETTINGS.fallback.assumptionsUrl).then(function (response) {
-        return response.data;
-      });
+      return loadFallback(APP_SETTINGS.fallback.assumptionsUrl);
     }
 
     function saveSimulation(payload) {
       if (isFirebaseEnabled()) {
-        var ref = window.firebase.database().ref('simulations');
-        return $firebaseArray(ref).$add(payload);
+        return pushSimulation(payload).catch(function () {
+          queueSimulation(payload);
+          return $q.resolve({
+            queued: true,
+            payload: payload
+          });
+        });
       }
 
-      return $q.resolve({ local: true, savedAt: new Date().toISOString(), payload: payload });
+      queueSimulation(payload);
+      return $q.resolve({
+        local: true,
+        queued: true,
+        savedAt: new Date().toISOString(),
+        payload: payload
+      });
+    }
+
+    function retryPendingSimulations() {
+      if (!isFirebaseEnabled()) {
+        return $q.resolve({ skipped: true });
+      }
+
+      var pending = readQueue();
+      if (!pending.length) {
+        return $q.resolve({ retried: 0 });
+      }
+
+      var retries = pending.map(function (item) {
+        return pushSimulation(item.payload);
+      });
+
+      clearQueue();
+      return $q.all(retries).then(function () {
+        return { retried: pending.length };
+      }).catch(function () {
+        return { retried: pending.length, discardedOnRetry: true };
+      });
+    }
+
+    function loadFallback(url) {
+      return $http.get(url).then(function (response) {
+        return response.data;
+      });
+    }
+
+    function pushSimulation(payload) {
+      var ref = window.firebase.database().ref('simulations');
+      return $firebaseArray(ref).$add(payload);
+    }
+
+    function readQueue() {
+      try {
+        var raw = window.localStorage.getItem(PENDING_SIMULATIONS_KEY);
+        if (!raw) {
+          return [];
+        }
+        var parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (err) {
+        clearQueue();
+        return [];
+      }
+    }
+
+    function writeQueue(items) {
+      window.localStorage.setItem(PENDING_SIMULATIONS_KEY, JSON.stringify(items));
+    }
+
+    function clearQueue() {
+      window.localStorage.removeItem(PENDING_SIMULATIONS_KEY);
+    }
+
+    function queueSimulation(payload) {
+      var queue = readQueue();
+      queue.push({ payload: payload });
+      writeQueue(queue);
     }
   }
 })();
