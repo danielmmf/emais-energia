@@ -16,17 +16,47 @@
   </head>
 <body ng-controller="HomeController as home">
   <header class="topbar">
-    <div>
+    <div class="brand-block">
+      <p class="eyebrow">Decisao economica para transicao energetica</p>
       <h1>Viabilidade Verde</h1>
       <p class="tagline">A transicao energetica so acelera quando a conta fecha.</p>
     </div>
-    <span class="chip" ng-class="{'chip-live': home.firebaseEnabled, 'chip-fallback': !home.firebaseEnabled}">
-      {{ home.firebaseEnabled ? 'Dados em tempo real (Firebase)' : 'Fallback local (JSON)' }}
-    </span>
+    <div class="topbar-meta">
+      <span class="chip" ng-class="{'chip-live': home.firebaseEnabled, 'chip-fallback': !home.firebaseEnabled}">
+        {{ home.firebaseEnabled ? 'Dados em tempo real (Firebase)' : 'Fallback local (JSON)' }}
+      </span>
+      <p class="meta-note">Mapa leve, simulacao rapida e recomendacao pronta para pitch.</p>
+    </div>
   </header>
+
+  <section class="hero-strip">
+    <article>
+      <span class="hero-kicker">Fluxo da demo</span>
+      <strong>Territorio</strong>
+      <p>Explore regioes, ativos e infraestrutura com leitura rapida.</p>
+    </article>
+    <article>
+      <span class="hero-kicker">Pergunta central</span>
+      <strong>A conta fecha?</strong>
+      <p>Compare custo atual, rota verde, economia anual e payback.</p>
+    </article>
+    <article>
+      <span class="hero-kicker">Saida</span>
+      <strong>Decisao executiva</strong>
+      <p>Receba recomendacao textual e relatorio para reuniao.</p>
+    </article>
+  </section>
 
   <main class="layout">
     <section class="map-panel">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">Mapa de oportunidades</p>
+          <h2>Leitura territorial orientada a decisao</h2>
+        </div>
+        <p class="panel-copy">Combine camadas, aproxime o mapa e use o painel lateral para transformar contexto em simulacao.</p>
+      </div>
+
        <div class="layer-toolbar">
          <div class="layer-toolbar-header">
            <h3>Camadas</h3>
@@ -56,6 +86,12 @@
     </section>
 
     <aside class="sidebar">
+      <div class="sidebar-hero">
+        <p class="section-kicker">Painel de decisao</p>
+        <h2>Da oportunidade ao calculo</h2>
+        <p>Selecione um caso, revise as premissas e dispare a simulacao com um clique.</p>
+      </div>
+
       <h2>Oportunidades</h2>
       <p ng-if="home.loading">Carregando dados...</p>
       <p class="error" ng-if="home.error">{{ home.error }}</p>
@@ -110,7 +146,14 @@
   </main>
 
   <section class="results" ng-if="home.result">
-    <h2>Resultado</h2>
+    <div class="results-head">
+      <div>
+        <p class="section-kicker">Resposta do cenario</p>
+        <h2>Resultado</h2>
+      </div>
+      <p>Leitura imediata para custo, retorno, emissao e recomendacao executiva.</p>
+    </div>
+
     <div class="cards">
       <article><h3>Custo atual anual</h3><p>{{ home.asCurrency(home.result.currentAnnualCost) }}</p></article>
       <article><h3>Custo verde anual</h3><p>{{ home.asCurrency(home.result.greenAnnualCost) }}</p></article>
