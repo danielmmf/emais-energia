@@ -101,9 +101,12 @@
       <h2>Oportunidades</h2>
       <p ng-if="home.loading">Carregando dados...</p>
       <p class="error" ng-if="home.error">{{ home.error }}</p>
+      <p class="helper data-source-note" ng-if="!home.loading">
+        {{ home.pidDataStatus.portsLive ? ('Portos da PID no mapa: ' + home.pidDataStatus.portsCount + ' registros reais') : 'Portos da PID indisponiveis no momento. Fallback local ativo.' }}
+      </p>
 
       <ul class="op-list" ng-if="!home.loading">
-        <li ng-repeat="item in home.opportunities" ng-click="home.selectOpportunity(item)" ng-class="{'active': home.selectedOpportunity && home.selectedOpportunity.id === item.id}">
+        <li ng-repeat="item in home.sidebarOpportunities" ng-click="home.selectOpportunity(item)" ng-class="{'active': home.selectedOpportunity && home.selectedOpportunity.id === item.id}">
           <strong>{{ item.name }}</strong>
           <small>{{ item.region }} | {{ item.sector }}</small>
         </li>

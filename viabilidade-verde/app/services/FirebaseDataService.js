@@ -17,6 +17,7 @@
     this.getAssumptions = getAssumptions;
     this.getRegions = getRegions;
     this.getInfrastructure = getInfrastructure;
+    this.getPidArcgisPorts = getPidArcgisPorts;
     this.saveSimulation = saveSimulation;
     this.retryPendingSimulations = retryPendingSimulations;
 
@@ -111,6 +112,18 @@
       return loadFallback(APP_SETTINGS.fallback.infrastructureUrl);
     }
 
+    function getPidArcgisPorts() {
+      if (!APP_SETTINGS.pidArcgis || !APP_SETTINGS.pidArcgis.portsGeoJsonUrl) {
+        return $q.resolve([]);
+      }
+
+      return $http.get(APP_SETTINGS.pidArcgis.portsGeoJsonUrl).then(function (response) {
+        return mapPidPortsGeoJson(response.data);
+      }).catch(function () {
+        return [];
+      });
+    }
+
     function saveSimulation(payload) {
       if (isFirebaseEnabled()) {
         return pushSimulation(payload).catch(function () {
@@ -159,6 +172,45 @@
       });
     }
 
+    function mapPidPortsGeoJson(collection) {
+      var features = collection && Array.isArray(collection.features)
+        ? collection.features
+        : [];
+
+      return features.map(function (feature, index) {
+        var properties = feature.properties || {};
+        var geometry = feature.geometry || {};
+        var coordinates = geometry.coordinates;
+        var stateCode = String(properties.POR_SG_UF || '').toUpperCase();
+        var stateName = stateNameByUf(stateCode);
+        var portName = String(properties.POR_NM || ('Porto ' + (index + 1))).trim();
+
+        if (!Array.isArray(coordinates) || coordinates.length < 2) {
+          return null;
+        }
+
+        return {
+          id: 'pid-port-' + sanitizeId(portName + '-' + stateCode + '-' + index),
+          name: stateName + ' - ' + portName,
+          region: stateName,
+          sector: 'Logistica portuaria',
+          currentSource: 'Diesel',
+          recommendedRoute: 'Energia renovavel contratada',
+          monthlyCostDefault: 180000,
+          investmentDefault: 2400000,
+          lat: Number(coordinates[1]),
+          lng: Number(coordinates[0]),
+          layerType: 'portos',
+          source: 'pidArcgis',
+          showInSidebar: false,
+          meta: {
+            portType: properties.POR_DS_TIP || 'Nao informado',
+            stateCode: stateCode
+          }
+        };
+      }).filter(Boolean);
+    }
+
     function pushSimulation(payload) {
       var ref = window.firebase.database().ref('simulations');
       return $firebaseArray(ref).$add(payload);
@@ -190,6 +242,49 @@
       var queue = readQueue();
       queue.push({ payload: payload });
       writeQueue(queue);
+    }
+
+    function sanitizeId(value) {
+      return String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
+    function stateNameByUf(uf) {
+      var mapping = {
+        AC: 'Acre',
+        AL: 'Alagoas',
+        AP: 'Amapa',
+        AM: 'Amazonas',
+        BA: 'Bahia',
+        CE: 'Ceara',
+        DF: 'Distrito Federal',
+        ES: 'Espirito Santo',
+        GO: 'Goias',
+        MA: 'Maranhao',
+        MT: 'Mato Grosso',
+        MS: 'Mato Grosso do Sul',
+        MG: 'Minas Gerais',
+        PA: 'Para',
+        PB: 'Paraiba',
+        PR: 'Parana',
+        PE: 'Pernambuco',
+        PI: 'Piaui',
+        RJ: 'Rio de Janeiro',
+        RN: 'Rio Grande do Norte',
+        RS: 'Rio Grande do Sul',
+        RO: 'Rondonia',
+        RR: 'Roraima',
+        SC: 'Santa Catarina',
+        SP: 'Sao Paulo',
+        SE: 'Sergipe',
+        TO: 'Tocantins'
+      };
+
+      return mapping[uf] || (uf || 'Brasil');
     }
   }
 })();

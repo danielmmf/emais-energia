@@ -30,6 +30,7 @@ test('producao: landing bloqueada e app no ar', async ({ page }) => {
   await expect(page.locator('body')).not.toContainText('{{');
   await expect(page.locator('.leaflet-container').first()).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Oportunidades' })).toBeVisible();
+  await expect(page.locator('.data-source-note')).toContainText(/Portos da PID no mapa: \d+ registros reais|Portos da PID indisponiveis no momento\. Fallback local ativo\./);
 
   await page.getByText('Goias - Biometano para Fertilizantes').click();
   await expect(page.getByText('Potencial territorial:')).toBeVisible();

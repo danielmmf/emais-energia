@@ -16,6 +16,8 @@
     vm.loading = true;
     vm.error = null;
     vm.opportunities = [];
+    vm.sidebarOpportunities = [];
+    vm.mapOpportunities = [];
     vm.opportunitiesById = {};
     vm.opportunitiesByMarkerKey = {};
     vm.regions = null;
@@ -30,6 +32,10 @@
     vm.firebaseEnabled = false;
     vm.simulationReady = false;
     vm.layerToolbarCollapsed = false;
+    vm.pidDataStatus = {
+      portsLive: false,
+      portsCount: 0
+    };
 
     vm.layerToggles = {
       industrias: { label: 'Industrias', visible: true },
@@ -111,17 +117,27 @@
         FirebaseDataService.getOpportunities(),
         FirebaseDataService.getAssumptions(),
         FirebaseDataService.getRegions(),
-        FirebaseDataService.getInfrastructure()
+        FirebaseDataService.getInfrastructure(),
+        FirebaseDataService.getPidArcgisPorts()
       ]).then(function (response) {
-        vm.opportunities = response[0] || [];
+        var baseOpportunities = response[0] || [];
+        var pidArcgisPorts = response[4] || [];
+
+        vm.sidebarOpportunities = baseOpportunities.filter(function (opportunity) {
+          return opportunity.showInSidebar !== false;
+        });
+        vm.mapOpportunities = buildMapOpportunities(baseOpportunities, pidArcgisPorts);
+        vm.opportunities = vm.mapOpportunities;
         vm.assumptions = response[1] || {};
         vm.regions = response[2] || { type: 'FeatureCollection', features: [] };
         vm.infrastructure = response[3] || { type: 'FeatureCollection', features: [] };
+        vm.pidDataStatus.portsLive = pidArcgisPorts.length > 0;
+        vm.pidDataStatus.portsCount = pidArcgisPorts.length;
         vm.regionIndex = MapDataService.buildRegionIndex(vm.regions);
 
         vm.opportunitiesById = {};
         vm.opportunitiesByMarkerKey = {};
-        vm.opportunities.forEach(function (opportunity, index) {
+        vm.mapOpportunities.forEach(function (opportunity, index) {
           opportunity._mapKey = MapDataService.buildMarkerKey(opportunity.id, index);
           vm.opportunitiesById[opportunity.id] = opportunity;
           vm.opportunitiesByMarkerKey[opportunity._mapKey] = opportunity;
@@ -165,7 +181,7 @@
 
     function refreshMapData() {
       var visibleLayers = getVisibleLayerState();
-      vm.map.markers = MapDataService.buildMarkers(vm.opportunities, visibleLayers);
+      vm.map.markers = MapDataService.buildMarkers(vm.mapOpportunities, visibleLayers);
       vm.map.paths = angular.extend(
         {},
         MapDataService.buildRegionPaths(vm.regions, visibleLayers),
@@ -589,6 +605,19 @@
         .replace(/^-+|-+$/g, '');
 
       return 'viabilidade-verde-' + (region || 'simulacao') + '.html';
+    }
+
+    function buildMapOpportunities(baseOpportunities, pidArcgisPorts) {
+      var allBase = baseOpportunities || [];
+      var nonPortBase = allBase.filter(function (opportunity) {
+        return String(opportunity.layerType || '').toLowerCase() !== 'portos';
+      });
+      var basePorts = allBase.filter(function (opportunity) {
+        return String(opportunity.layerType || '').toLowerCase() === 'portos';
+      });
+      var livePorts = Array.isArray(pidArcgisPorts) ? pidArcgisPorts : [];
+
+      return nonPortBase.concat(livePorts.length ? livePorts : basePorts);
     }
 
     function buildRouteOptions() {
