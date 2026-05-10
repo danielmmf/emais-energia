@@ -168,7 +168,9 @@
     }
 
     function regionPathId(properties, index) {
-      return properties.id || ('region-' + index);
+      var id = properties.id || ('region-' + index);
+      // Replace hyphens with underscores to comply with AngularJS-Leaflet path naming rules
+      return id.replace(/-/g, '_');
     }
 
     function getEnergyPotentialColor(potential) {
