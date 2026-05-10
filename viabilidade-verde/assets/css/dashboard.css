@@ -66,6 +66,22 @@
   margin-bottom: 0;
 }
 
+.context-meta {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(23, 35, 30, 0.08);
+}
+
+.context-meta a {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.context-meta a:hover {
+  text-decoration: underline;
+}
+
 label {
   display: block;
   margin: 12px 0 6px;

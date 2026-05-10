@@ -67,7 +67,7 @@
           markers[markerKey] = {
             lat: item.lat,
             lng: item.lng,
-            message: item.name,
+            message: buildMarkerMessage(item),
             focus: false,
             draggable: false,
             layer: MARKER_LAYER_CONFIG[layerType].key,
@@ -128,17 +128,22 @@
          var geometry = feature.geometry || {};
          var properties = feature.properties || {};
 
-         if (geometry.type === 'LineString' && Array.isArray(geometry.coordinates)) {
+         if (
+           (geometry.type === 'LineString' && Array.isArray(geometry.coordinates)) ||
+           (geometry.type === 'MultiLineString' && Array.isArray(geometry.coordinates))
+         ) {
            var infraId = properties.id || ('infra-' + index);
            // Replace hyphens with underscores to comply with AngularJS-Leaflet path naming rules
            infraId = infraId.replace(/-/g, '_');
            paths[infraId] = {
              type: 'polyline',
-             latlngs: coordinatesToLatLngs(geometry.coordinates),
-             color: '#1565c0',
-             weight: 2,
-             opacity: 0.8,
-             dashArray: '6,4',
+             latlngs: geometry.type === 'MultiLineString'
+               ? geometry.coordinates.map(coordinatesToLatLngs)
+               : coordinatesToLatLngs(geometry.coordinates),
+             color: getInfrastructureColor(properties.styleType),
+             weight: getInfrastructureWeight(properties.styleType),
+             opacity: 0.82,
+             dashArray: getInfrastructureDashArray(properties.styleType),
              clickable: false
            };
          }
@@ -201,6 +206,37 @@
       return normalized;
     }
 
+    function buildMarkerMessage(item) {
+      var lines = [
+        '<strong>' + escapeHtml(item.name) + '</strong>',
+        escapeHtml((item.region || 'Brasil') + ' • ' + (item.sector || 'Ativo territorial'))
+      ];
+
+      if (item.source === 'pidArcgis') {
+        lines.push('<span>Origem: PID / ArcGIS</span>');
+
+        if (item.meta) {
+          if (item.meta.portType) {
+            lines.push('<span>Tipo: ' + escapeHtml(item.meta.portType) + '</span>');
+          }
+          if (item.meta.status) {
+            lines.push('<span>Status: ' + escapeHtml(item.meta.status) + '</span>');
+          }
+          if (item.meta.capacity) {
+            lines.push('<span>Capacidade: ' + escapeHtml(String(item.meta.capacity)) + ' Nm3/d</span>');
+          }
+          if (item.meta.stage) {
+            lines.push('<span>Etapa: ' + escapeHtml(item.meta.stage) + '</span>');
+          }
+          if (item.meta.type) {
+            lines.push('<span>Tipo do projeto: ' + escapeHtml(item.meta.type) + '</span>');
+          }
+        }
+      }
+
+      return lines.join('<br>');
+    }
+
     function getEnergyPotentialColor(potential) {
       var normalized = String(potential || '').toLowerCase();
       if (normalized === 'alto') {
@@ -210,6 +246,45 @@
         return '#f9a825';
       }
       return '#8d6e63';
+    }
+
+    function getInfrastructureColor(styleType) {
+      if (/transmission/i.test(String(styleType || ''))) {
+        return '#1565c0';
+      }
+      if (/gas_transport/i.test(String(styleType || ''))) {
+        return '#0f766e';
+      }
+      if (/gas_distribution/i.test(String(styleType || ''))) {
+        return '#2e7d32';
+      }
+      if (/gas_flow/i.test(String(styleType || ''))) {
+        return '#ca8a04';
+      }
+      return '#1565c0';
+    }
+
+    function getInfrastructureWeight(styleType) {
+      return /transmission/i.test(String(styleType || '')) ? 2 : 2.4;
+    }
+
+    function getInfrastructureDashArray(styleType) {
+      if (/planned/i.test(String(styleType || ''))) {
+        return '4,6';
+      }
+      if (/gas_distribution/i.test(String(styleType || ''))) {
+        return '2,5';
+      }
+      return null;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
   }
 })();

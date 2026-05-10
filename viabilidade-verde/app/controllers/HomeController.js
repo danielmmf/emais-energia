@@ -27,6 +27,7 @@
     vm.availableRoutes = buildRouteOptions();
     vm.selectedOpportunity = null;
     vm.selectedRegion = null;
+    vm.selectedContextFacts = [];
     vm.result = null;
     vm.report = null;
     vm.firebaseEnabled = false;
@@ -36,6 +37,7 @@
       ports: { count: 0, fromCache: false },
       biometano: { count: 0, fromCache: false },
       hidrogenio: { count: 0, fromCache: false },
+      infraestrutura: { count: 0, fromCache: false },
       label: 'Camadas PID indisponiveis no momento. Fallback local ativo.'
     };
 
@@ -122,12 +124,18 @@
         FirebaseDataService.getInfrastructure(),
         FirebaseDataService.getPidArcgisPorts(),
         FirebaseDataService.getPidArcgisBiomethane(),
-        FirebaseDataService.getPidArcgisHydrogen()
+        FirebaseDataService.getPidArcgisHydrogen(),
+        FirebaseDataService.getPidArcgisInfrastructure()
       ]).then(function (response) {
         var baseOpportunities = response[0] || [];
         var pidArcgisPorts = response[4] || { items: [], fromCache: false };
         var pidArcgisBiomethane = response[5] || { items: [], fromCache: false };
         var pidArcgisHydrogen = response[6] || { items: [], fromCache: false };
+        var pidArcgisInfrastructure = response[7] || {
+          collection: { type: 'FeatureCollection', features: [] },
+          summary: {},
+          fromCache: false
+        };
 
         vm.sidebarOpportunities = baseOpportunities.filter(function (opportunity) {
           return opportunity.showInSidebar !== false;
@@ -140,7 +148,10 @@
         vm.opportunities = vm.mapOpportunities;
         vm.assumptions = response[1] || {};
         vm.regions = response[2] || { type: 'FeatureCollection', features: [] };
-        vm.infrastructure = response[3] || { type: 'FeatureCollection', features: [] };
+        vm.infrastructure = mergeInfrastructureCollections(
+          response[3] || { type: 'FeatureCollection', features: [] },
+          pidArcgisInfrastructure.collection
+        );
         vm.pidDataStatus.ports = {
           count: pidArcgisPorts.items.length,
           fromCache: !!pidArcgisPorts.fromCache
@@ -152,6 +163,10 @@
         vm.pidDataStatus.hidrogenio = {
           count: pidArcgisHydrogen.items.length,
           fromCache: !!pidArcgisHydrogen.fromCache
+        };
+        vm.pidDataStatus.infraestrutura = {
+          count: pidArcgisInfrastructure.collection.features.length,
+          fromCache: !!pidArcgisInfrastructure.fromCache
         };
         vm.pidDataStatus.label = buildPidDataStatusLabel(vm.pidDataStatus);
         vm.regionIndex = MapDataService.buildRegionIndex(vm.regions);
@@ -249,6 +264,7 @@
       vm.form.recommendedRoute = item.recommendedRoute;
       vm.form.monthlyCostDefault = item.monthlyCostDefault;
       vm.form.investmentDefault = item.investmentDefault;
+      vm.selectedContextFacts = buildSelectedContextFacts(item);
       syncAvailableRoutes(item.recommendedRoute);
 
       vm.map.center.lat = item.lat;
@@ -266,6 +282,7 @@
       vm.simulationReady = false;
       vm.result = null;
       vm.report = null;
+      vm.selectedContextFacts = [];
 
       vm.form.region = properties.name || '';
       vm.form.sector = properties.vocacao || '';
@@ -668,11 +685,91 @@
         parts.push('H2 ' + status.hidrogenio.count + (status.hidrogenio.fromCache ? ' (cache)' : ''));
       }
 
+      if (status.infraestrutura.count) {
+        parts.push('Infra ' + status.infraestrutura.count + (status.infraestrutura.fromCache ? ' (cache)' : ''));
+      }
+
       if (!parts.length) {
         return 'Camadas PID indisponiveis no momento. Fallback local ativo.';
       }
 
       return 'PID no mapa: ' + parts.join(' • ');
+    }
+
+    function mergeInfrastructureCollections(fallbackCollection, pidCollection) {
+      var fallbackFeatures = fallbackCollection && Array.isArray(fallbackCollection.features)
+        ? fallbackCollection.features
+        : [];
+      var pidFeatures = pidCollection && Array.isArray(pidCollection.features)
+        ? pidCollection.features
+        : [];
+
+      if (!pidFeatures.length) {
+        return {
+          type: 'FeatureCollection',
+          features: fallbackFeatures
+        };
+      }
+
+      return {
+        type: 'FeatureCollection',
+        features: pidFeatures.concat(fallbackFeatures)
+      };
+    }
+
+    function buildSelectedContextFacts(item) {
+      var facts = [];
+      var meta = item && item.meta ? item.meta : {};
+
+      if (!item) {
+        return facts;
+      }
+
+      if (item.source === 'pidArcgis') {
+        facts.push({ label: 'Origem', value: 'PID / ArcGIS' });
+      }
+
+      if (meta.company) {
+        facts.push({ label: 'Empresa', value: meta.company });
+      }
+
+      if (meta.municipality) {
+        facts.push({ label: 'Municipio', value: meta.municipality });
+      }
+
+      if (meta.portType) {
+        facts.push({ label: 'Tipo do ativo', value: meta.portType });
+      }
+
+      if (meta.status) {
+        facts.push({ label: 'Status', value: meta.status });
+      }
+
+      if (meta.capacity) {
+        facts.push({ label: 'Capacidade estimada', value: String(meta.capacity) + ' Nm3/d' });
+      }
+
+      if (meta.stage) {
+        facts.push({ label: 'Etapa', value: meta.stage });
+      }
+
+      if (meta.owner) {
+        facts.push({ label: 'Responsavel', value: meta.owner });
+      }
+
+      if (meta.type) {
+        facts.push({ label: 'Tipo de projeto', value: meta.type });
+      }
+
+      if (meta.description) {
+        facts.push({ label: 'Descricao', value: meta.description });
+      }
+
+      if (meta.sourceUrl) {
+        facts.push({ label: 'Fonte', value: meta.sourceUrl });
+      }
+
+      return facts;
     }
 
     function buildRouteOptions() {

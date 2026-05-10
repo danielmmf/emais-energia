@@ -363,9 +363,27 @@
             </tr>
             <tr>
               <td>Infraestrutura</td>
+              <td>Gasodutos de distribuicao</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Gasodutos_de_distribui%C3%A7%C3%A3o/FeatureServer/1?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Infraestrutura</td>
+              <td>Gasodutos de escoamento</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Gasodutos_de_escoamento/FeatureServer/1?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Infraestrutura</td>
               <td>Linha Transmissao existente</td>
               <td>FeatureServer</td>
               <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Linha_Transmiss%C3%A3o_existente/FeatureServer/1?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Infraestrutura</td>
+              <td>Linha Transmissao planejada</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Linha_Transmiss%C3%A3o_planejada/FeatureServer/1?f=json">abrir</a></td>
             </tr>
             <tr>
               <td>Energia</td>
@@ -436,6 +454,11 @@
               <td>OK</td>
               <td>O endpoint respondeu publicamente, sem autenticacao.</td>
             </tr>
+            <tr>
+              <td>FeatureServer linhas reais</td>
+              <td>OK</td>
+              <td>Gasodutos e transmissao responderam publicamente e puderam ser paginados em JSON.</td>
+            </tr>
           </tbody>
         </table>
       </section>
@@ -499,6 +522,8 @@
           <li>Mapa leve em Leaflet com camadas e painel lateral.</li>
           <li>Fluxo completo de simulacao economica.</li>
           <li>Relatorio executivo e exportacao.</li>
+          <li>Camadas reais de portos, biometano, H2, gasodutos e transmissao com cache local.</li>
+          <li>Contexto lateral enriquecido para markers reais da PID.</li>
           <li>Fallback local em JSON/GeoJSON preservado.</li>
           <li>Base pronta para trocar dados mockados por fontes reais por etapa.</li>
         </ul>
@@ -524,6 +549,11 @@
           <strong>Instalacoes Portuarias</strong>, <strong>Biometano Comercial</strong> e
           <strong>H2 projetos planejados/avancados</strong> foram integradas ao mapa principal do
           Viabilidade Verde como fontes opcionais com fallback local preservado.
+        </p>
+        <p>
+          Na mesma etapa, foram integradas tambem as linhas reais de <strong>gasodutos de transporte,
+          distribuicao e escoamento</strong>, alem de <strong>linhas de transmissao existentes e planejadas</strong>,
+          com cache local por camada e merge controlado com a infraestrutura mockada do MVP.
         </p>
         <p>
           Tambem foi adicionado <strong>cache local com TTL</strong> para reduzir dependencia de rede

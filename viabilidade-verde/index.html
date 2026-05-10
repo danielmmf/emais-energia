@@ -121,6 +121,14 @@
         <p><strong>Potencial territorial:</strong> {{ (home.selectedRegion && home.selectedRegion.potencialEnergetico) || 'Nao informado' }}</p>
         <p><strong>Infraestrutura:</strong> {{ (home.selectedRegion && home.selectedRegion.infraestrutura) || 'Nao informada' }}</p>
         <p><strong>Risco inicial:</strong> {{ (home.selectedRegion && home.selectedRegion.risco) || 'Nao informado' }}</p>
+        <div class="context-meta" ng-if="home.selectedContextFacts.length">
+          <p><strong>Contexto do ativo real</strong></p>
+          <p ng-repeat="fact in home.selectedContextFacts track by $index">
+            <strong>{{ fact.label }}:</strong>
+            <span ng-if="fact.label !== 'Fonte'">{{ fact.value }}</span>
+            <a ng-if="fact.label === 'Fonte'" ng-href="{{ fact.value }}" target="_blank" rel="noopener noreferrer">abrir referencia</a>
+          </p>
+        </div>
         <button type="button" ng-click="home.startSimulation()">Calcular Viabilidade</button>
       </div>
       <p class="helper" ng-if="!home.selectedOpportunity && !home.selectedRegion">Selecione uma oportunidade ou clique em uma regiao no mapa.</p>
