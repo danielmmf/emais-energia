@@ -8,202 +8,182 @@
   ViabilityService.$inject = ['FirebaseDataService', '$q'];
 
   function ViabilityService(FirebaseDataService, $q) {
-    // Mock factors for different routes (as specified in requirements)
-    // These would normally come from Firebase or local storage
-    this.routeFactors = {
-      biometano: { costFactor: 0.7, emissionReduction: 0.6 },
-      hidrogenio: { costFactor: 0.8, emissionReduction: 0.9 },
-      eletricidade: { costFactor: 0.6, emissionReduction: 0.8 },
-      SAF: { costFactor: 1.2, emissionReduction: 0.5 } // SAF might be more expensive initially
-    };
+    this.calculate = calculate;
+    this.calculateViabilidade = calculateViabilidade;
+    this.saveSimulacao = saveSimulacao;
+    this.loadSimulacoes = loadSimulacoes;
+    this.getCurrentResult = getCurrentResult;
 
-    /**
-     * Calculate annual current cost
-     * @param {number} monthlyCost - Monthly cost in R$
-     * @returns {number} Annual cost in R$
-     */
-    this.calculateCustoAnual = function (monthlyCost) {
-      return Number(monthlyCost || 0) * 12;
-    };
+    function calculate(input, assumptions) {
+      var normalizedAssumptions = assumptions || {};
+      var routeKey = normalizeRouteKey(input && input.recommendedRoute);
+      var route = normalizedAssumptions[routeKey] || normalizedAssumptions.biometano || fallbackRoute();
 
-    /**
-     * Calculate annual green cost based on route factor
-     * @param {number} monthlyCost - Monthly cost in R$
-     * @param {string} routeKey - Route identifier (e.g., 'biometano')
-     * @returns {number} Annual green cost in R$
-     */
-    this.calculateCustoVerdeAnual = function (monthlyCost, routeKey) {
-      var route = this.routeFactors[routeKey] || this.routeFactors.biometano; // Default to biometano
-      return this.calculateCustoAnual(monthlyCost) * Number(route.costFactor || 1);
-    };
-
-    /**
-     * Calculate annual savings
-     * @param {number} currentAnnualCost - Annual current cost
-     * @param {number} greenAnnualCost - Annual green cost
-     * @returns {number} Annual savings (can be negative)
-     */
-    this.calculateEconomiaAnual = function (currentAnnualCost, greenAnnualCost) {
-      return Number(currentAnnualCost || 0) - Number(greenAnnualCost || 0);
-    };
-
-    /**
-     * Calculate payback period in years
-     * @param {number} investment - Investment amount in R$
-     * @param {number} annualSavings - Annual savings in R$
-     * @returns {number|null} Payback period in years or null if not applicable
-     */
-    this.calculatePayback = function (investment, annualSavings) {
-      var invest = Number(investment || 0);
-      var savings = Number(annualSavings || 0);
-      
-      // Payback only applicable when savings are positive
-      if (savings > 0) {
-        return invest / savings;
-      }
-      return null; // Not applicable (negative or zero savings)
-    };
-
-    /**
-     * Estimate emission reduction based on route factor
-     * @param {number} monthlyCost - Monthly cost in R$
-     * @param {string} routeKey - Route identifier
-     * @returns {number} Estimated emission reduction percentage
-     */
-    this.calculateReducaoEmissoes = function (monthlyCost, routeKey) {
-      var route = this.routeFactors[routeKey] || this.routeFactors.biometano;
-      return Number(route.emissionReduction || 0);
-    };
-
-    /**
-     * Classify viability based on payback period and strategic value
-     * @param {number|null} paybackYears - Payback period in years or null
-     * @returns {Object} Classification with level, description, and color
-     */
-    this.classifyViabilidade = function (paybackYears) {
-      if (paybackYears === null) {
-        return {
-          nivel: 'Não recomendada',
-          descricao: 'Economia anual não positiva - investimento não se paga',
-          cor: '#dc3545' // red
-        };
-      }
-
-      if (paybackYears <= 2) {
-        return {
-          nivel: 'Alta',
-          descricao: 'Payback rápido - excelente retorno financeiro',
-          cor: '#28a745' // green
-        };
-      } else if (paybackYears <= 4) {
-        return {
-          nivel: 'Média',
-          descricao: 'Payback moderado - bom retorno financeiro',
-          cor: '#ffc107' // yellow
-        };
-      } else if (paybackYears <= 6) {
-        return {
-          nivel: 'Baixa',
-          descricao: 'Payback longo - considerar outros fatores',
-          cor: '#fd7e14' // orange
-        };
-      } else {
-        // Payback > 6 anos - check for strategic benefits
-        // For now, we'll classify as Estratégica if payback <= 10 years
-        if (paybackYears <= 10) {
-          return {
-            nivel: 'Estratégica',
-            descricao: 'Payback longo, mas com benefícios estratégicos importantes',
-            cor: '#6f42c1' // purple
-          };
-        } else {
-          return {
-            nivel: 'Não recomendada',
-            descricao: 'Payback muito longo - investimento não recomendado',
-            cor: '#dc3545' // red
-          };
-        }
-      }
-    };
-
-    /**
-     * Main method to calculate all viability metrics
-     * @param {Object} input - User inputs (monthlyCost, investment, recommendedRoute)
-     * @param {Object} assumptions - Route assumptions with factors
-     * @returns {Object} Complete viability calculation results
-     */
-    this.calculateViabilidade = function (input, assumptions) {
-      // Override route factors with provided assumptions if available
-      if (assumptions) {
-        this.routeFactors = assumptions;
-      }
-
-      var monthlyCost = Number(input.monthlyCostDefault || 0);
-      var investment = Number(input.investmentDefault || 0);
-      var routeKey = input.recommendedRoute ? 
-                      String(input.recommendedRoute || '').toLowerCase().replace(/\s+/g, '_') : 
-                      'biometano'; // Default route
-
-      var currentAnnualCost = this.calculateCustoAnual(monthlyCost);
-      var greenAnnualCost = this.calculateCustoVerdeAnual(monthlyCost, routeKey);
-      var annualSavings = this.calculateEconomiaAnual(currentAnnualCost, greenAnnualCost);
-      var paybackYears = this.calculatePayback(investment, annualSavings);
-      var emissionReduction = this.calculateReducaoEmissoes(monthlyCost, routeKey);
-      var classificacao = this.classifyViabilidade(paybackYears);
+      var currentAnnualCost = Number(input && input.monthlyCostDefault || 0) * 12;
+      var greenAnnualCost = currentAnnualCost * Number(route.costFactor || 1);
+      var annualSavings = currentAnnualCost - greenAnnualCost;
+      var paybackYears = annualSavings > 0 ? Number(input && input.investmentDefault || 0) / annualSavings : null;
 
       return {
-        monthlyCost: monthlyCost,
-        annualInvestment: investment,
         routeKey: routeKey,
+        route: route,
         currentAnnualCost: currentAnnualCost,
         greenAnnualCost: greenAnnualCost,
         annualSavings: annualSavings,
         paybackYears: paybackYears,
-        emissionReduction: emissionReduction,
-        classificacao: classificacao,
-        // Additional derived values
-        roi: annualSavings > 0 ? (annualSavings * 100) / investment : 0,
-        annualCostDifference: Math.abs(annualSavings)
+        emissionReduction: Number(route.emissionReduction || 0)
       };
-    };
+    }
 
-    /**
-     * Save a simulation result with Firebase primary and localStorage fallback
-     * @param {Object} simulationData - Simulation data to save
-     * @returns {Promise} Promise that resolves when saved
-     */
-    this.saveSimulacao = function (simulationData) {
-      // Add timestamp and metadata
+    function calculateViabilidade(input, assumptions) {
+      var normalizedInput = {
+        monthlyCostDefault: Number(input && input.monthlyCostDefault || 0),
+        investmentDefault: Number(input && input.investmentDefault || 0),
+        recommendedRoute: input && input.recommendedRoute || ''
+      };
+
+      var result = calculate(normalizedInput, assumptions || defaultAssumptions());
+      var classificacao = classifyDetailed(result);
+
+      return {
+        monthlyCost: normalizedInput.monthlyCostDefault,
+        annualInvestment: normalizedInput.investmentDefault,
+        routeKey: result.routeKey,
+        currentAnnualCost: result.currentAnnualCost,
+        greenAnnualCost: result.greenAnnualCost,
+        annualSavings: result.annualSavings,
+        paybackYears: result.paybackYears,
+        emissionReduction: result.emissionReduction,
+        classificacao: classificacao,
+        roi: normalizedInput.investmentDefault > 0 && result.annualSavings > 0
+          ? (result.annualSavings * 100) / normalizedInput.investmentDefault
+          : 0,
+        annualCostDifference: Math.abs(result.annualSavings),
+        route: result.route
+      };
+    }
+
+    function saveSimulacao(simulationData) {
       var simulationToSave = angular.extend({}, simulationData, {
         timestamp: new Date().toISOString(),
         version: '1.0'
       });
 
-      // Use FirebaseDataService for resilient storage
       return FirebaseDataService.saveSimulation(simulationToSave);
-    };
+    }
 
-    /**
-     * Load saved simulations
-     * @returns {Promise} Promise that resolves with array of simulations
-     */
-    this.loadSimulacoes = function () {
-      // This would typically load from Firebase or localStorage
-      // For now, we'll return an empty array as the FirebaseDataService
-      // doesn't have a direct loadAll method, but we can extend it if needed
+    function loadSimulacoes() {
       return $q.resolve([]);
-    };
+    }
 
-    /**
-     * Getter for current simulation result (for use by ReportController)
-     * In a full implementation, this would retrieve from storage
-     * For now, we'll return null as results should be passed directly
-     * @returns {null} Placeholder - results should be passed via scope or service
-     */
-    this.getCurrentResult = function () {
-      // This would typically retrieve from localStorage or Firebase
-      // For MVP, we expect results to be passed directly between controllers
+    function getCurrentResult() {
       return null;
-    };
+    }
+
+    function classifyDetailed(result) {
+      if (result.annualSavings < 0 && result.emissionReduction < 0.25) {
+        return {
+          nivel: 'Nao recomendada',
+          descricao: 'Economia anual negativa e baixa reducao de emissoes.',
+          cor: '#dc3545'
+        };
+      }
+
+      if (result.annualSavings < 0 && result.emissionReduction >= 0.5) {
+        return {
+          nivel: 'Estrategica',
+          descricao: 'Custo verde maior, mas com reducao de emissoes relevante.',
+          cor: '#1565c0'
+        };
+      }
+
+      if (result.paybackYears !== null && result.paybackYears <= 3 && result.emissionReduction > 0.25) {
+        return {
+          nivel: 'Alta',
+          descricao: 'Boa atratividade economica e retorno rapido.',
+          cor: '#2e7d32'
+        };
+      }
+
+      if (result.paybackYears !== null && result.paybackYears > 3 && result.paybackYears <= 6) {
+        return {
+          nivel: 'Media',
+          descricao: 'Retorno moderado com viabilidade razoavel.',
+          cor: '#f9a825'
+        };
+      }
+
+      if (result.paybackYears !== null && result.paybackYears > 6) {
+        return {
+          nivel: 'Baixa',
+          descricao: 'Payback elevado para o cenario atual.',
+          cor: '#ef6c00'
+        };
+      }
+
+      return {
+        nivel: 'Estrategica',
+        descricao: 'Cenario exige avaliacao complementar.',
+        cor: '#1565c0'
+      };
+    }
+
+    function normalizeRouteKey(value) {
+      return String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '_');
+    }
+
+    function fallbackRoute() {
+      return {
+        label: 'Biometano',
+        costFactor: 0.68,
+        emissionReduction: 0.5,
+        risk: 'Medio'
+      };
+    }
+
+    function defaultAssumptions() {
+      return {
+        biometano: {
+          label: 'Biometano',
+          costFactor: 0.68,
+          emissionReduction: 0.5,
+          risk: 'Medio'
+        },
+        eletrificacao: {
+          label: 'Eletrificacao',
+          costFactor: 0.78,
+          emissionReduction: 0.35,
+          risk: 'Medio'
+        },
+        energia_renovavel_contratada: {
+          label: 'Energia renovavel contratada',
+          costFactor: 0.82,
+          emissionReduction: 0.25,
+          risk: 'Baixo'
+        },
+        biomassa: {
+          label: 'Biomassa',
+          costFactor: 0.72,
+          emissionReduction: 0.45,
+          risk: 'Medio'
+        },
+        hidrogenio_de_baixa_emissao: {
+          label: 'Hidrogenio de baixa emissao',
+          costFactor: 1.15,
+          emissionReduction: 0.65,
+          risk: 'Alto'
+        },
+        saf: {
+          label: 'SAF',
+          costFactor: 1.25,
+          emissionReduction: 0.6,
+          risk: 'Alto'
+        }
+      };
+    }
   }
 })();
