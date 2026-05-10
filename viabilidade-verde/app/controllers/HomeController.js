@@ -5,12 +5,12 @@
     .module('viabilidadeVerdeApp')
     .controller('HomeController', HomeController);
 
-  HomeController.$inject = ['$q', '$scope', '$timeout', 'FirebaseDataService', 'MapDataService', 'ViabilityService', 'RecommendationService', 'ReportService'];
+  HomeController.$inject = ['$q', '$scope', '$timeout', 'leafletData', 'FirebaseDataService', 'LayerControlService', 'MapDataService', 'ViabilityService', 'RecommendationService', 'ReportService'];
   var LAST_MAP_CENTER_KEY = 'vv.lastMapCenter';
   var LOCAL_FEEDBACK_QUEUE_KEY = 'vv.feedbackQueue';
   var FEEDBACK_PASSWORD = 'baconpedacudo';
 
-  function HomeController($q, $scope, $timeout, FirebaseDataService, MapDataService, ViabilityService, RecommendationService, ReportService) {
+  function HomeController($q, $scope, $timeout, leafletData, FirebaseDataService, LayerControlService, MapDataService, ViabilityService, RecommendationService, ReportService) {
     var vm = this;
 
     vm.loading = true;
@@ -28,6 +28,9 @@
     vm.selectedOpportunity = null;
     vm.selectedRegion = null;
     vm.selectedContextFacts = [];
+    vm.layerGroups = LayerControlService.buildGroups();
+    vm.layerInsights = null;
+    vm.lastAutoSuggestedRoute = null;
     vm.result = null;
     vm.report = null;
     vm.firebaseEnabled = false;
@@ -39,18 +42,6 @@
       hidrogenio: { count: 0, fromCache: false },
       infraestrutura: { count: 0, fromCache: false, loading: true },
       label: 'Camadas PID indisponiveis no momento. Fallback local ativo.'
-    };
-
-    vm.layerToggles = {
-      industrias: { label: 'Industrias', visible: true },
-      biometano: { label: 'Biometano', visible: true },
-      hidrogenio: { label: 'Hidrogenio', visible: true },
-      portos: { label: 'Portos', visible: true },
-      fertilizantes: { label: 'Fertilizantes', visible: true },
-      saf: { label: 'SAF', visible: true },
-      energia_renovavel: { label: 'Energia renovavel', visible: true },
-      infrastructure: { label: 'Infraestrutura', visible: true },
-      regions: { label: 'Regioes prioritarias', visible: true }
     };
 
     vm.feedbackModal = buildDefaultFeedbackState();
@@ -93,6 +84,11 @@
 
     vm.toggleLayerToolbar = toggleLayerToolbar;
     vm.toggleLayer = toggleLayer;
+    vm.toggleLayerGroup = toggleLayerGroup;
+    vm.toggleLayerDetails = toggleLayerDetails;
+    vm.toggleLayerInfo = toggleLayerInfo;
+    vm.setLayerOpacity = setLayerOpacity;
+    vm.zoomToLayer = zoomToLayer;
     vm.selectOpportunity = selectOpportunity;
     vm.startSimulation = startSimulation;
     vm.calculate = calculate;
@@ -205,13 +201,19 @@
     }
 
     function refreshMapData() {
-      var visibleLayers = getVisibleLayerState();
-      vm.map.markers = MapDataService.buildMarkers(vm.mapOpportunities, visibleLayers);
+      var panelState = LayerControlService.buildPanelState(vm.layerGroups);
+      var visibleOpportunities = vm.mapOpportunities.filter(function (opportunity) {
+        return isOpportunityVisible(opportunity, panelState);
+      });
+
+      vm.map.markers = MapDataService.buildMarkers(visibleOpportunities, panelState);
       vm.map.paths = angular.extend(
         {},
-        MapDataService.buildRegionPaths(vm.regions, visibleLayers),
-        MapDataService.buildInfrastructurePaths(vm.infrastructure, visibleLayers)
+        MapDataService.buildRegionPaths(vm.regions, panelState),
+        MapDataService.buildInfrastructurePaths(vm.infrastructure, panelState)
       );
+      vm.layerInsights = LayerControlService.buildLayerInsights(vm.selectedRegion, vm.selectedOpportunity, vm.layerGroups);
+      applyLayerInfluence();
     }
 
     function toggleLayerToolbar() {
@@ -219,25 +221,31 @@
     }
 
     function toggleLayer(layerKey) {
-      if (!vm.layerToggles[layerKey]) {
+      var layer = LayerControlService.findLayer(vm.layerGroups, layerKey);
+      if (!layer) {
         return;
       }
 
       refreshMapData();
     }
 
-    function getVisibleLayerState() {
-      return {
-        industrias: vm.layerToggles.industrias.visible,
-        biometano: vm.layerToggles.biometano.visible,
-        hidrogenio: vm.layerToggles.hidrogenio.visible,
-        portos: vm.layerToggles.portos.visible,
-        fertilizantes: vm.layerToggles.fertilizantes.visible,
-        saf: vm.layerToggles.saf.visible,
-        energia_renovavel: vm.layerToggles.energia_renovavel.visible,
-        infrastructure: vm.layerToggles.infrastructure.visible,
-        regions: vm.layerToggles.regions.visible
-      };
+    function toggleLayerGroup(group) {
+      group.collapsed = !group.collapsed;
+    }
+
+    function toggleLayerDetails(layer) {
+      layer.expanded = !layer.expanded;
+    }
+
+    function toggleLayerInfo(layer) {
+      layer.infoOpen = !layer.infoOpen;
+      if (layer.infoOpen) {
+        layer.expanded = true;
+      }
+    }
+
+    function setLayerOpacity() {
+      refreshMapData();
     }
 
     function selectOpportunity(item) {
@@ -250,6 +258,7 @@
       vm.form.region = item.region;
       vm.form.sector = item.sector;
       vm.form.currentSource = item.currentSource;
+      vm.lastAutoSuggestedRoute = null;
       vm.form.recommendedRoute = item.recommendedRoute;
       vm.form.monthlyCostDefault = item.monthlyCostDefault;
       vm.form.investmentDefault = item.investmentDefault;
@@ -260,6 +269,7 @@
       vm.map.center.lng = item.lng;
       vm.map.center.zoom = 6;
       persistLastMapCenter();
+      refreshMapData();
     }
 
     function selectRegion(feature) {
@@ -276,6 +286,7 @@
       vm.form.region = properties.name || '';
       vm.form.sector = properties.vocacao || '';
       vm.form.currentSource = 'Gas natural';
+      vm.lastAutoSuggestedRoute = null;
       vm.form.recommendedRoute = properties.rotaSugerida || 'Biometano';
       syncAvailableRoutes(vm.form.recommendedRoute);
 
@@ -285,6 +296,8 @@
         vm.map.center.zoom = 6;
         persistLastMapCenter();
       }
+
+      refreshMapData();
     }
 
     function startSimulation() {
@@ -295,6 +308,7 @@
     function calculate() {
       var computed = ViabilityService.calculate(vm.form, vm.assumptions);
       computed.classification = RecommendationService.classify(computed);
+      computed.layerInsights = angular.copy(vm.layerInsights);
       computed.recommendation = RecommendationService.buildRecommendation(computed, vm.form);
       vm.result = computed;
       vm.report = ReportService.build(vm.form, vm.result);
@@ -302,6 +316,7 @@
       FirebaseDataService.saveSimulation({
         createdAt: new Date().toISOString(),
         source: vm.selectedOpportunity ? vm.selectedOpportunity.id : (vm.selectedRegion ? vm.selectedRegion.id : null),
+        activeLayers: getActiveLayerNames(),
         form: angular.copy(vm.form),
         result: angular.copy(vm.result)
       }).finally(function () {
@@ -793,6 +808,144 @@
       return facts;
     }
 
+    function isOpportunityVisible(opportunity, panelState) {
+      if (!panelState.markerLayers.length) {
+        return false;
+      }
+
+      return panelState.markerLayers.some(function (layer) {
+        return LayerControlService.isOpportunityVisibleForLayer(opportunity, layer.id);
+      });
+    }
+
+    function applyLayerInfluence() {
+      if (!vm.layerInsights) {
+        return;
+      }
+
+      if (vm.layerInsights.preferredRoute && shouldApplyAutoRoute(vm.layerInsights.preferredRoute)) {
+        vm.form.recommendedRoute = vm.layerInsights.preferredRoute;
+        vm.lastAutoSuggestedRoute = vm.layerInsights.preferredRoute;
+        syncAvailableRoutes(vm.form.recommendedRoute);
+      }
+
+      if (vm.layerInsights.recommendedSector && (!vm.form.sector || vm.form.sector === '')) {
+        vm.form.sector = vm.layerInsights.recommendedSector;
+      }
+    }
+
+    function shouldApplyAutoRoute(candidateRoute) {
+      if (!candidateRoute) {
+        return false;
+      }
+
+      if (!vm.form.recommendedRoute) {
+        return true;
+      }
+
+      if (vm.form.recommendedRoute === vm.lastAutoSuggestedRoute) {
+        return true;
+      }
+
+      if (vm.selectedOpportunity && vm.form.recommendedRoute === vm.selectedOpportunity.recommendedRoute) {
+        return true;
+      }
+
+      if (vm.selectedRegion && vm.form.recommendedRoute === vm.selectedRegion.rotaSugerida) {
+        return true;
+      }
+
+      return false;
+    }
+
+    function getActiveLayerNames() {
+      return LayerControlService.buildPanelState(vm.layerGroups).activeLayerNames;
+    }
+
+    function zoomToLayer(layer) {
+      var bounds = buildLayerBounds(layer);
+
+      if (!bounds || !bounds.isValid || !bounds.isValid()) {
+        return;
+      }
+
+      leafletData.getMap().then(function (map) {
+        map.fitBounds(bounds.pad(0.12));
+      });
+    }
+
+    function buildLayerBounds(layer) {
+      if (!window.L || !layer) {
+        return null;
+      }
+
+      var points = [];
+
+      if (layer.kind === 'marker') {
+        vm.mapOpportunities.forEach(function (opportunity) {
+          if (LayerControlService.isOpportunityVisibleForLayer(opportunity, layer.id) &&
+            typeof opportunity.lat === 'number' &&
+            typeof opportunity.lng === 'number') {
+            points.push(window.L.latLng(opportunity.lat, opportunity.lng));
+          }
+        });
+      } else if (layer.kind === 'region') {
+        var features = vm.regions && Array.isArray(vm.regions.features) ? vm.regions.features : [];
+        features.forEach(function (feature) {
+          collectGeometryPoints(feature && feature.geometry, points);
+        });
+      } else if (layer.kind === 'line') {
+        var infraFeatures = vm.infrastructure && Array.isArray(vm.infrastructure.features) ? vm.infrastructure.features : [];
+        infraFeatures.forEach(function (feature) {
+          if (LayerControlService.isInfrastructureVisibleForLayer(feature, layer.id)) {
+            collectGeometryPoints(feature.geometry, points);
+          }
+        });
+      }
+
+      if (!points.length) {
+        return null;
+      }
+
+      return window.L.latLngBounds(points);
+    }
+
+    function collectGeometryPoints(geometry, points) {
+      if (!geometry || !points) {
+        return;
+      }
+
+      if (geometry.type === 'Polygon' && Array.isArray(geometry.coordinates)) {
+        geometry.coordinates.forEach(function (ring) {
+          (ring || []).forEach(function (pair) {
+            pushLatLng(pair, points);
+          });
+        });
+        return;
+      }
+
+      if (geometry.type === 'LineString' && Array.isArray(geometry.coordinates)) {
+        geometry.coordinates.forEach(function (pair) {
+          pushLatLng(pair, points);
+        });
+        return;
+      }
+
+      if (geometry.type === 'MultiLineString' && Array.isArray(geometry.coordinates)) {
+        geometry.coordinates.forEach(function (segment) {
+          (segment || []).forEach(function (pair) {
+            pushLatLng(pair, points);
+          });
+        });
+      }
+    }
+
+    function pushLatLng(pair, points) {
+      if (Array.isArray(pair) && pair.length >= 2) {
+        points.push(window.L.latLng(pair[1], pair[0]));
+      }
+    }
+
     function buildRouteOptions() {
       var source = vm.assumptions && Object.keys(vm.assumptions).length
         ? vm.assumptions
@@ -819,14 +972,7 @@
     }
 
     function buildMapSnapshotDataUrl() {
-      var activeLayers = Object.keys(vm.layerToggles)
-        .filter(function (key) {
-          return vm.layerToggles[key].visible;
-        })
-        .map(function (key) {
-          return vm.layerToggles[key].label;
-        })
-        .join(' • ');
+      var activeLayers = getActiveLayerNames().join(' • ');
 
       var title = vm.selectedOpportunity ? vm.selectedOpportunity.name : (vm.form.region || 'Analise territorial');
       var subtitle = 'Centro ' + formatCoord(vm.map.center.lat) + ', ' + formatCoord(vm.map.center.lng) + ' • zoom ' + vm.map.center.zoom;

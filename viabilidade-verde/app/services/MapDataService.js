@@ -5,7 +5,9 @@
     .module('viabilidadeVerdeApp')
     .service('MapDataService', MapDataService);
 
-  function MapDataService() {
+  MapDataService.$inject = ['LayerControlService'];
+
+  function MapDataService(LayerControlService) {
     var MARKER_LAYER_CONFIG = {
       industrias: { key: 'industrias', label: 'Industrias' },
       biometano: { key: 'biometano', label: 'Biometano' },
@@ -53,23 +55,22 @@
       };
     };
 
-    this.buildMarkers = function buildMarkers(opportunities, visibleLayers) {
+    this.buildMarkers = function buildMarkers(opportunities, panelState) {
       var markers = {};
 
       (opportunities || []).forEach(function (item, index) {
         var layerType = normalizeLayerType(item.layerType);
-        if (!visibleLayers[layerType]) {
-          return;
-        }
 
         if (typeof item.lat === 'number' && typeof item.lng === 'number') {
           var markerKey = item._mapKey || sanitizeMapKey(item.id || ('marker-' + index), 'marker_');
+          var markerOpacity = resolveMarkerOpacity(item, panelState);
           markers[markerKey] = {
             lat: item.lat,
             lng: item.lng,
             message: buildMarkerMessage(item),
             focus: false,
             draggable: false,
+            opacity: markerOpacity,
             layer: MARKER_LAYER_CONFIG[layerType].key,
             data: {
               opportunityId: item.id
@@ -81,14 +82,13 @@
       return markers;
     };
 
-    this.buildRegionPaths = function buildRegionPaths(regionCollection, visibleLayers) {
-      if (!visibleLayers.regions && !visibleLayers.energia_renovavel) {
-        return {};
-      }
-
+    this.buildRegionPaths = function buildRegionPaths(regionCollection, panelState) {
       var paths = {};
       var features = regionCollection && Array.isArray(regionCollection.features)
         ? regionCollection.features
+        : [];
+      var regionLayers = panelState && Array.isArray(panelState.regionLayers)
+        ? panelState.regionLayers
         : [];
 
       features.forEach(function (feature, index) {
@@ -96,26 +96,45 @@
         var properties = feature.properties || {};
 
         if (geometry.type === 'Polygon' && Array.isArray(geometry.coordinates) && geometry.coordinates[0]) {
-          paths[regionPathId(properties, index)] = {
+          var baseRegionId = regionPathId(properties, index);
+          paths[baseRegionId] = {
             type: 'polygon',
             latlngs: coordinatesToLatLngs(geometry.coordinates[0]),
-            color: '#2f8a4b',
-            weight: 1,
-            fillColor: getEnergyPotentialColor(properties.potencialEnergetico),
-            fillOpacity: visibleLayers.energia_renovavel ? 0.32 : 0.16,
+            color: '#244c34',
+            weight: 1.1,
+            fillColor: '#dce9d8',
+            fillOpacity: 0.08,
             click: true,
             data: {
-              regionId: regionPathId(properties, index)
+              regionId: baseRegionId
             }
           };
+
+          regionLayers.forEach(function (layer) {
+            var style = LayerControlService.getRegionLayerStyle(layer.id, properties);
+            paths[layer.id + '_' + baseRegionId] = {
+              type: 'polygon',
+              latlngs: coordinatesToLatLngs(geometry.coordinates[0]),
+              color: style.strokeColor,
+              opacity: style.strokeOpacity,
+              weight: style.weight,
+              fillColor: style.fillColor,
+              fillOpacity: Math.max(0.08, style.fillOpacity * (Number(layer.opacity || 0) / 100)),
+              clickable: false
+            };
+          });
         }
       });
 
       return paths;
     };
 
-    this.buildInfrastructurePaths = function buildInfrastructurePaths(infraCollection, visibleLayers) {
-       if (!visibleLayers.infrastructure) {
+    this.buildInfrastructurePaths = function buildInfrastructurePaths(infraCollection, panelState) {
+       var lineLayers = panelState && Array.isArray(panelState.lineLayers)
+         ? panelState.lineLayers
+         : [];
+
+       if (!lineLayers.length) {
          return {};
        }
 
@@ -128,11 +147,22 @@
          var geometry = feature.geometry || {};
          var properties = feature.properties || {};
          var infraId = properties.id || ('infra-' + index);
+         var matchingLayers = lineLayers.filter(function (layer) {
+           return LayerControlService.isInfrastructureVisibleForLayer(feature, layer.id);
+         });
+
+         if (!matchingLayers.length) {
+           return;
+         }
+
          // Replace hyphens with underscores to comply with AngularJS-Leaflet path naming rules
          infraId = infraId.replace(/-/g, '_');
+         var pathOpacity = Math.max.apply(null, matchingLayers.map(function (layer) {
+           return Number(layer.opacity || 0) / 100;
+         }));
 
          if (geometry.type === 'LineString' && Array.isArray(geometry.coordinates)) {
-           paths[infraId] = buildInfrastructurePath(geometry.coordinates, properties);
+           paths[infraId] = buildInfrastructurePath(geometry.coordinates, properties, pathOpacity);
            return;
          }
 
@@ -142,7 +172,7 @@
                return;
              }
 
-             paths[infraId + '_' + segmentIndex] = buildInfrastructurePath(segment, properties);
+             paths[infraId + '_' + segmentIndex] = buildInfrastructurePath(segment, properties, pathOpacity);
            });
          }
        });
@@ -235,17 +265,6 @@
       return lines.join('<br>');
     }
 
-    function getEnergyPotentialColor(potential) {
-      var normalized = String(potential || '').toLowerCase();
-      if (normalized === 'alto') {
-        return '#2e7d32';
-      }
-      if (normalized === 'medio' || normalized === 'media') {
-        return '#f9a825';
-      }
-      return '#8d6e63';
-    }
-
     function getInfrastructureColor(styleType) {
       if (/transmission/i.test(String(styleType || ''))) {
         return '#1565c0';
@@ -276,16 +295,33 @@
       return null;
     }
 
-    function buildInfrastructurePath(coordinates, properties) {
+    function buildInfrastructurePath(coordinates, properties, opacity) {
       return {
         type: 'polyline',
         latlngs: coordinatesToLatLngs(coordinates),
         color: getInfrastructureColor(properties.styleType),
         weight: getInfrastructureWeight(properties.styleType),
-        opacity: 0.82,
+        opacity: opacity || 0.82,
         dashArray: getInfrastructureDashArray(properties.styleType),
         clickable: false
       };
+    }
+
+    function resolveMarkerOpacity(item, panelState) {
+      var markerLayers = panelState && Array.isArray(panelState.markerLayers)
+        ? panelState.markerLayers
+        : [];
+      var matches = markerLayers.filter(function (layer) {
+        return LayerControlService.isOpportunityVisibleForLayer(item, layer.id);
+      });
+
+      if (!matches.length) {
+        return 0.88;
+      }
+
+      return Math.max.apply(null, matches.map(function (layer) {
+        return Number(layer.opacity || 0) / 100;
+      }));
     }
 
     function escapeHtml(value) {

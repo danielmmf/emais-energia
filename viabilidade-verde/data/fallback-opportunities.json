@@ -78,6 +78,19 @@
     "layerType": "industrias"
   },
   {
+    "id": "mg-aco-verde",
+    "name": "Minas Gerais - Aco Verde com Eletrificacao",
+    "region": "Minas Gerais",
+    "sector": "Aco",
+    "currentSource": "Carvao mineral",
+    "recommendedRoute": "Eletrificacao",
+    "monthlyCostDefault": 320000,
+    "investmentDefault": 6200000,
+    "lat": -20.138,
+    "lng": -44.8919,
+    "layerType": "industrias"
+  },
+  {
     "id": "pe-saf-refino",
     "name": "Pernambuco - SAF para Cadeia de Combustiveis",
     "region": "Pernambuco",

@@ -33,11 +33,14 @@
     this.buildRecommendation = function buildRecommendation(result, form) {
       var paybackLabel = result.paybackYears === null ? 'N/A' : result.paybackYears.toFixed(2) + ' anos';
       var reductionLabel = (result.emissionReduction * 100).toFixed(0) + '%';
+      var suffix = result.layerInsights && result.layerInsights.recommendationSuffix
+        ? result.layerInsights.recommendationSuffix
+        : '';
 
       return 'Viabilidade ' + result.classification + ': para ' + form.region +
         ', a rota ' + form.recommendedRoute + ' apresenta economia anual estimada de R$ ' +
         formatCurrency(result.annualSavings) + ', payback de ' + paybackLabel +
-        ' e reducao de emissoes de ' + reductionLabel + '.';
+        ' e reducao de emissoes de ' + reductionLabel + '.' + suffix;
     };
 
     function formatCurrency(value) {

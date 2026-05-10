@@ -7,6 +7,20 @@
 
   function ReportService() {
     this.build = function build(form, result) {
+      var summarySuffix = result.layerInsights && result.layerInsights.reportSummarySuffix
+        ? result.layerInsights.reportSummarySuffix
+        : '';
+      var nextSteps = [
+        'Validar oferta regional da rota verde selecionada.',
+        'Mapear fornecedores e modelos de contrato.',
+        'Avaliar adaptacao tecnica dos equipamentos.',
+        'Estruturar plano de transicao em fases.'
+      ];
+
+      if (result.layerInsights && result.layerInsights.riskLabel) {
+        nextSteps.unshift('Enderecar risco territorial destacado pelas camadas ativas: ' + result.layerInsights.riskLabel);
+      }
+
       return {
         generatedAt: new Date().toISOString(),
         region: form.region,
@@ -14,7 +28,7 @@
         currentSource: form.currentSource,
         recommendedRoute: form.recommendedRoute,
         summary: 'A analise indica viabilidade ' + result.classification.toLowerCase() +
-          ' para avaliacao da transicao energetica neste cenario.',
+          ' para avaliacao da transicao energetica neste cenario.' + summarySuffix,
         metrics: {
           currentAnnualCost: result.currentAnnualCost,
           greenAnnualCost: result.greenAnnualCost,
@@ -23,12 +37,7 @@
           emissionReduction: result.emissionReduction,
           classification: result.classification
         },
-        nextSteps: [
-          'Validar oferta regional da rota verde selecionada.',
-          'Mapear fornecedores e modelos de contrato.',
-          'Avaliar adaptacao tecnica dos equipamentos.',
-          'Estruturar plano de transicao em fases.'
-        ]
+        nextSteps: nextSteps
       };
     };
 

@@ -32,7 +32,8 @@ export PLAYWRIGHT_BASE_URL
 
 PHASE_INFO=$(bash scripts/ops/phase_issue_gate.sh)
 
-bash scripts/ops/telegram_notify.sh "🚀 Inicio deploy Viabilidade Verde\n${PHASE_INFO}\nBranch: $(git branch --show-current)"
+DEPLOY_START_MESSAGE=$(printf '🚀 Inicio deploy Viabilidade Verde\n%s\nBranch: %s' "$PHASE_INFO" "$(git branch --show-current)")
+bash scripts/ops/telegram_notify.sh "$DEPLOY_START_MESSAGE"
 
 git push origin "$(git branch --show-current)"
 
@@ -41,6 +42,7 @@ echo "$DEPLOY_OUTPUT" | jq -e '.ok == true' >/dev/null
 
 npx playwright test tests/playwright/production.smoke.spec.js tests/playwright/production.mobile.spec.js --reporter=line
 
-bash scripts/ops/telegram_notify.sh "✅ Deploy e teste Playwright OK\nURL: ${PLAYWRIGHT_BASE_URL}"
+DEPLOY_DONE_MESSAGE=$(printf '✅ Deploy e teste Playwright OK\nURL: %s' "${PLAYWRIGHT_BASE_URL}")
+bash scripts/ops/telegram_notify.sh "$DEPLOY_DONE_MESSAGE"
 
 echo "publish_and_test_ok"
