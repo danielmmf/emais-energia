@@ -32,7 +32,8 @@ test('producao mobile: rota verde carrega, layout nao estoura e feedback aparece
   await expect(page).toHaveURL(/\/viabilidade-verde\/?/);
   await expect(page.getByRole('button', { name: 'Enviar feedback' })).toBeVisible();
   await expect(page.locator('.leaflet-container').first()).toBeVisible();
-  await expect(page.locator('.data-source-note')).toContainText(/PID no mapa: .*Portos .*Biometano .*H2 .*Infra/);
+  await expect(page.locator('.data-source-note')).toBeVisible({ timeout: 20000 });
+  await expect(page.locator('.data-source-note')).toContainText(/PID no mapa: .*Portos .*Biometano .*H2 .*Infra/, { timeout: 30000 });
 
   const overflow = await page.evaluate(() => ({
     body: document.body.scrollWidth - document.body.clientWidth,

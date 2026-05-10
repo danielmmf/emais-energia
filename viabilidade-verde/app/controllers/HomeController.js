@@ -37,7 +37,7 @@
       ports: { count: 0, fromCache: false },
       biometano: { count: 0, fromCache: false },
       hidrogenio: { count: 0, fromCache: false },
-      infraestrutura: { count: 0, fromCache: false },
+      infraestrutura: { count: 0, fromCache: false, loading: true },
       label: 'Camadas PID indisponiveis no momento. Fallback local ativo.'
     };
 
@@ -124,18 +124,13 @@
         FirebaseDataService.getInfrastructure(),
         FirebaseDataService.getPidArcgisPorts(),
         FirebaseDataService.getPidArcgisBiomethane(),
-        FirebaseDataService.getPidArcgisHydrogen(),
-        FirebaseDataService.getPidArcgisInfrastructure()
+        FirebaseDataService.getPidArcgisHydrogen()
       ]).then(function (response) {
         var baseOpportunities = response[0] || [];
         var pidArcgisPorts = response[4] || { items: [], fromCache: false };
         var pidArcgisBiomethane = response[5] || { items: [], fromCache: false };
         var pidArcgisHydrogen = response[6] || { items: [], fromCache: false };
-        var pidArcgisInfrastructure = response[7] || {
-          collection: { type: 'FeatureCollection', features: [] },
-          summary: {},
-          fromCache: false
-        };
+        var fallbackInfrastructure = response[3] || { type: 'FeatureCollection', features: [] };
 
         vm.sidebarOpportunities = baseOpportunities.filter(function (opportunity) {
           return opportunity.showInSidebar !== false;
@@ -148,10 +143,7 @@
         vm.opportunities = vm.mapOpportunities;
         vm.assumptions = response[1] || {};
         vm.regions = response[2] || { type: 'FeatureCollection', features: [] };
-        vm.infrastructure = mergeInfrastructureCollections(
-          response[3] || { type: 'FeatureCollection', features: [] },
-          pidArcgisInfrastructure.collection
-        );
+        vm.infrastructure = fallbackInfrastructure;
         vm.pidDataStatus.ports = {
           count: pidArcgisPorts.items.length,
           fromCache: !!pidArcgisPorts.fromCache
@@ -163,10 +155,6 @@
         vm.pidDataStatus.hidrogenio = {
           count: pidArcgisHydrogen.items.length,
           fromCache: !!pidArcgisHydrogen.fromCache
-        };
-        vm.pidDataStatus.infraestrutura = {
-          count: pidArcgisInfrastructure.collection.features.length,
-          fromCache: !!pidArcgisInfrastructure.fromCache
         };
         vm.pidDataStatus.label = buildPidDataStatusLabel(vm.pidDataStatus);
         vm.regionIndex = MapDataService.buildRegionIndex(vm.regions);
@@ -183,6 +171,7 @@
 
         refreshMapData();
         flushQueuedFeedback();
+        loadPidInfrastructure(fallbackInfrastructure);
       }).catch(function (err) {
         vm.error = 'Falha ao carregar dados: ' + (err && err.message ? err.message : 'erro desconhecido');
       }).finally(function () {
@@ -685,7 +674,9 @@
         parts.push('H2 ' + status.hidrogenio.count + (status.hidrogenio.fromCache ? ' (cache)' : ''));
       }
 
-      if (status.infraestrutura.count) {
+      if (status.infraestrutura.loading) {
+        parts.push('Infra carregando');
+      } else if (status.infraestrutura.count) {
         parts.push('Infra ' + status.infraestrutura.count + (status.infraestrutura.fromCache ? ' (cache)' : ''));
       }
 
@@ -715,6 +706,36 @@
         type: 'FeatureCollection',
         features: pidFeatures.concat(fallbackFeatures)
       };
+    }
+
+    function loadPidInfrastructure(fallbackInfrastructure) {
+      FirebaseDataService.getPidArcgisInfrastructure().then(function (pidArcgisInfrastructure) {
+        pidArcgisInfrastructure = pidArcgisInfrastructure || {
+          collection: { type: 'FeatureCollection', features: [] },
+          fromCache: false
+        };
+
+        vm.infrastructure = mergeInfrastructureCollections(
+          fallbackInfrastructure || { type: 'FeatureCollection', features: [] },
+          pidArcgisInfrastructure.collection
+        );
+        vm.pidDataStatus.infraestrutura = {
+          count: pidArcgisInfrastructure.collection && Array.isArray(pidArcgisInfrastructure.collection.features)
+            ? pidArcgisInfrastructure.collection.features.length
+            : 0,
+          fromCache: !!pidArcgisInfrastructure.fromCache,
+          loading: false
+        };
+        vm.pidDataStatus.label = buildPidDataStatusLabel(vm.pidDataStatus);
+        refreshMapData();
+      }).catch(function () {
+        vm.pidDataStatus.infraestrutura = {
+          count: 0,
+          fromCache: false,
+          loading: false
+        };
+        vm.pidDataStatus.label = buildPidDataStatusLabel(vm.pidDataStatus);
+      });
     }
 
     function buildSelectedContextFacts(item) {
