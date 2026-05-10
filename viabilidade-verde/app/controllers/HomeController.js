@@ -17,6 +17,7 @@
     vm.error = null;
     vm.opportunities = [];
     vm.opportunitiesById = {};
+    vm.opportunitiesByMarkerKey = {};
     vm.regions = null;
     vm.infrastructure = null;
     vm.regionIndex = {};
@@ -118,8 +119,11 @@
         vm.regionIndex = MapDataService.buildRegionIndex(vm.regions);
 
         vm.opportunitiesById = {};
-        vm.opportunities.forEach(function (opportunity) {
+        vm.opportunitiesByMarkerKey = {};
+        vm.opportunities.forEach(function (opportunity, index) {
+          opportunity._mapKey = MapDataService.buildMarkerKey(opportunity.id, index);
           vm.opportunitiesById[opportunity.id] = opportunity;
+          vm.opportunitiesByMarkerKey[opportunity._mapKey] = opportunity;
         });
 
         vm.availableRoutes = Object.keys(vm.assumptions).map(function (key) {
@@ -139,7 +143,7 @@
     function bindMapEvents() {
       $scope.$on('leafletDirectiveMarker.click', function (event, args) {
         var markerId = args && (args.modelName || args.markerName);
-        var item = vm.opportunitiesById[markerId];
+        var item = vm.opportunitiesByMarkerKey[markerId] || vm.opportunitiesById[markerId];
 
         if (item) {
           $scope.$applyAsync(function () {
