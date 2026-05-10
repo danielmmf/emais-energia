@@ -70,6 +70,19 @@
           buildLayer('rota_saf', 'SAF', 'marker', false, 76, 'Casos com rota SAF priorizada.', 'Ajuda a visualizar aplicacoes de combustiveis sustentaveis.', 'Markers filtrados por rota verde.', 'Fallback local.'),
           buildLayer('rota_hidrogenio', 'Hidrogenio', 'marker', false, 76, 'Casos com rota H2 de baixa emissao priorizada.', 'Reforca leitura de casos industriais e portuarios mais complexos.', 'Markers filtrados por rota verde.', 'Fallback local + dados PID quando aderentes.')
         ]
+      },
+      {
+        id: 'regulatory',
+        label: 'Regulacao e politicas publicas',
+        collapsed: true,
+        layers: [
+          buildLayer('incentivos_fiscais', 'Incentivos fiscais', 'region', false, 72, 'Territorios com historico ou potencial de incentivos fiscais para transicao energetica.', 'Incentivos podem melhorar payback e viabilidade. Ativar para contexto regulatorio.', 'Poligonos conceituais de potencial de incentivo.', 'Mock conceitual para demonstracao.'),
+          buildLayer('marco_hidrogenio', 'Marco regulatorio do hidrogenio', 'region', false, 68, 'Territorios onde o marco regulatorio do hidrogenio verde pode impactar projetos.', 'Regulacao do H2 pode afetar custo de implantacao e timeline.', 'Poligonos conceituais.', 'Mock conceitual.'),
+          buildLayer('regulacao_biometano', 'Regulacao de biometano', 'region', false, 74, 'Contextos onde a regulacao de biometano e relevante para viabilidade.', 'Abrangencia regulatoria pode impactar certificacao e comercializacao.', 'Poligonos conceituais.', 'Mock conceitual.'),
+          buildLayer('mandatos_saf', 'Mandatos de SAF', 'marker', false, 66, 'Pontos de discussao ou definicao de mandatos de combustivel de aviacao sustentavel.', 'Mandatos SAF afetam demanda e precos de contratos.', 'Markers conceituais.', 'Mock conceitual.'),
+          buildLayer('financiamento_verde', 'Financiamento verde', 'region', false, 70, 'Territorios com acesso a linhas de financiamento verde ou verde internacional.', 'Financiamento verde pode cobrir parte do CAPEX e melhorar payback.', 'Poligonos conceituais.', 'Mock conceitual.'),
+          buildLayer('politicas_estaduais', 'Politicas estaduais', 'region', false, 64, 'Estados com politicas publicas ativas de transicao energetica.', 'Politicas estaduais podem acelerar ou restringir implantacao.', 'Poligonos estaduais.', 'Mock conceitual.')
+        ]
       }
     ];
 

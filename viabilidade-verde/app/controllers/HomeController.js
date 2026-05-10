@@ -75,14 +75,15 @@
       }
     };
 
-    vm.form = {
-      region: '',
-      sector: '',
-      currentSource: '',
-      recommendedRoute: '',
-      monthlyCostDefault: 0,
-      investmentDefault: 0
-    };
+      vm.form = {
+        region: '',
+        sector: '',
+        currentSource: '',
+        recommendedRoute: '',
+        monthlyCostDefault: 0,
+        investmentDefault: 0,
+        regulatoryFactor: 'none'
+      };
 
     vm.toggleLayerToolbar = toggleLayerToolbar;
     vm.toggleLayer = toggleLayer;
@@ -349,7 +350,8 @@
     }
 
     function calculate() {
-      var computed = ViabilityService.calculate(vm.form, vm.assumptions);
+      var options = { regulatoryFactor: vm.form.regulatoryFactor };
+      var computed = ViabilityService.calculate(vm.form, vm.assumptions, options);
       computed.classification = RecommendationService.classify(computed);
       computed.layerInsights = angular.copy(vm.layerInsights);
       computed.recommendation = RecommendationService.buildRecommendation(computed, vm.form);

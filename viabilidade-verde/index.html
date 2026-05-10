@@ -170,6 +170,16 @@
           <label>Investimento estimado (R$)</label>
           <input type="number" step="0.01" ng-model="home.form.investmentDefault" required>
 
+          <label>Considerar fator regulatorio?</label>
+          <select ng-model="home.form.regulatoryFactor">
+            <option value="none">Nao considerar</option>
+            <option value="incentivo_favoravel">Incentivo favoravel</option>
+            <option value="neutro">Neutro</option>
+            <option value="barreira_regulatoria">Barreira regulatoria</option>
+            <option value="informacao_insuficiente">Informacao insuficiente</option>
+          </select>
+          <small class="form-hint">Ajustes simplificados para demonstracao do prototipo.</small>
+
           <button type="submit">Executar simulacao</button>
         </form>
       </section>
@@ -199,6 +209,71 @@
     <article class="recommendation">
       <h3>Recomendacao</h3>
       <p>{{ home.result.recommendation }}</p>
+    </article>
+
+    <article class="reliability-section" ng-if="home.result.reliability">
+      <h3>Confiabilidade e fatores regulatorios</h3>
+      <div class="reliability-grid">
+        <div class="reliability-item">
+          <strong>Nivel de confiabilidade</strong>
+          <span ng-class="{'conf-high': home.result.reliability.level === 'Alta', 'conf-medium': home.result.reliability.level === 'Media', 'conf-low': home.result.reliability.level === 'Baixa'}">
+            {{ home.result.reliability.level }}
+          </span>
+        </div>
+        <div class="reliability-item">
+          <strong>Base do calculo</strong>
+          <span>{{ home.result.reliability.baseLabel }}</span>
+        </div>
+        <div class="reliability-item full-width">
+          <strong>Alerta regulatorio</strong>
+          <span>{{ home.result.reliability.alertLevel }}</span>
+        </div>
+      </div>
+      <div class="reliability-factors" ng-if="home.result.reliability.factors && home.result.reliability.factors.length">
+        <strong>Fatores que podem alterar o payback:</strong>
+        <ul>
+          <li ng-repeat="factor in home.result.reliability.factors track by $index">{{ factor }}</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="missing-data-section">
+      <h3>Dados recomendados para analise futura</h3>
+      <div class="missing-data-columns">
+        <div>
+          <h4>Dados economicos</h4>
+          <ul>
+            <li>CAPEX detalhado</li>
+            <li>OPEX atual e projetado</li>
+            <li>Preco de energia e gas</li>
+            <li>Custo de conexao e adaptacao</li>
+            <li>Taxa de desconto e inflacao</li>
+            <li>Horizonte de investimento</li>
+            <li>Contratos de fornecimento</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Dados regulatorios</h4>
+          <ul>
+            <li>Incentivos fiscais e subsídios</li>
+            <li>Politicas estaduais</li>
+            <li>Marcos regulatórios</li>
+            <li>Licenciamento ambiental</li>
+            <li>Creditos de carbono</li>
+            <li>Financiamento verde</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Dados tecnicos</h4>
+          <ul>
+            <li>Consumo energetico real</li>
+            <li>Perfil horario de consumo</li>
+            <li>Disponibilidade da rota verde</li>
+            <li>Distancia ate fornecedor</li>
+            <li>Necessidade de retrofit</li>
+          </ul>
+        </div>
+      </div>
     </article>
 
     <article class="report" ng-if="home.report" id="report-section">

@@ -21,6 +21,20 @@
         nextSteps.unshift('Enderecar risco territorial destacado pelas camadas ativas: ' + result.layerInsights.riskLabel);
       }
 
+      var reliability = result.reliability || {};
+      var metrics = {
+        currentAnnualCost: result.currentAnnualCost,
+        greenAnnualCost: result.greenAnnualCost,
+        annualSavings: result.annualSavings,
+        paybackYears: result.paybackYears,
+        emissionReduction: result.emissionReduction,
+        classification: result.classification
+      };
+
+      if (result.adjustedInvestment) {
+        metrics.adjustedInvestment = result.adjustedInvestment;
+      }
+
       return {
         generatedAt: new Date().toISOString(),
         region: form.region,
@@ -29,13 +43,27 @@
         recommendedRoute: form.recommendedRoute,
         summary: 'A analise indica viabilidade ' + result.classification.toLowerCase() +
           ' para avaliacao da transicao energetica neste cenario.' + summarySuffix,
-        metrics: {
-          currentAnnualCost: result.currentAnnualCost,
-          greenAnnualCost: result.greenAnnualCost,
-          annualSavings: result.annualSavings,
-          paybackYears: result.paybackYears,
-          emissionReduction: result.emissionReduction,
-          classification: result.classification
+        metrics: metrics,
+        reliability: {
+          level: reliability.level || 'Baixa',
+          base: reliability.baseLabel || 'Mockado / premissa de prototipo',
+          factors: reliability.factors || [],
+          alertLevel: reliability.alertLevel || 'Regulacao nao avaliada detalhadamente'
+        },
+        missingData: {
+          economic: [
+            'CAPEX detalhado', 'OPEX atual e projetado', 'Preco de energia e gas',
+            'Custo de conexao e adaptacao', 'Taxa de desconto e inflacao',
+            'Horizonte de investimento', 'Contratos de fornecimento'
+          ],
+          regulatory: [
+            'Incentivos fiscais e subsídios', 'Politicas estaduais', 'Marcos regulatórios',
+            'Licenciamento ambiental', 'Creditos de carbono', 'Financiamento verde'
+          ],
+          technical: [
+            'Consumo energetico real', 'Perfil horario de consumo',
+            'Disponibilidade da rota verde', 'Distancia ate fornecedor', 'Necessidade de retrofit'
+          ]
         },
         nextSteps: nextSteps
       };
@@ -162,6 +190,25 @@
         '<ol>' + report.nextSteps.map(function (step) { return '<li>' + escapeHtml(step) + '</li>'; }).join('') + '</ol>',
         '</section>',
         '<section>',
+        '<h2>Confiabilidade e fatores regulatorios</h2>',
+        '<div class="context">',
+        '<p><strong>Nivel de confiabilidade:</strong> ' + escapeHtml(report.reliability.level) + '</p>',
+        '<p><strong>Base do calculo:</strong> ' + escapeHtml(report.reliability.base) + '</p>',
+        '<p><strong>Alerta regulatorio:</strong> ' + escapeHtml(report.reliability.alertLevel) + '</p>',
+        '</div>',
+        '<div class="note" style="margin-top:12px;">',
+        '<p><strong>Fatores que podem alterar o payback:</strong> ' + escapeHtml(report.reliability.factors.join(', ')) + '</p>',
+        '</div>',
+        '</section>',
+        '<section>',
+        '<h2>Dados recomendados para analise futura</h2>',
+        '<div class="grid" style="grid-template-columns:repeat(3,1fr);">',
+        '<div class="card"><strong>Dados economicos</strong><ul style="font-size:12px;padding-left:16px;margin:8px 0 0;line-height:1.8;">' + (report.missingData.economic || []).map(function (d) { return '<li>' + escapeHtml(d) + '</li>'; }).join('') + '</ul></div>',
+        '<div class="card"><strong>Dados regulatorios</strong><ul style="font-size:12px;padding-left:16px;margin:8px 0 0;line-height:1.8;">' + (report.missingData.regulatory || []).map(function (d) { return '<li>' + escapeHtml(d) + '</li>'; }).join('') + '</ul></div>',
+        '<div class="card"><strong>Dados tecnicos</strong><ul style="font-size:12px;padding-left:16px;margin:8px 0 0;line-height:1.8;">' + (report.missingData.technical || []).map(function (d) { return '<li>' + escapeHtml(d) + '</li>'; }).join('') + '</ul></div>',
+        '</div>',
+        '</section>',
+        '<section>',
         '<h2>Dados exportados</h2>',
         '<pre>' + escapeHtml(JSON.stringify({
           generatedAt: generatedAt,
@@ -172,7 +219,7 @@
         }, null, 2)) + '</pre>',
         '</section>',
         '<section class="note">',
-        '<p><strong>Premissas simplificadas:</strong> exportacao gerada a partir do prototipo do hackathon. Os fatores nao representam recomendacao tecnica final.</p>',
+        '<p><strong>Premissas simplificadas:</strong> exportacao gerada a partir do prototipo do hackathon. Os fatores nao representam recomendacao tecnica final. O payback apresentado e uma estimativa inicial e pode variar conforme CAPEX real, OPEX, preco de energia, contratos, incentivos fiscais, regulacao setorial, disponibilidade regional da rota verde e custos de implantacao. Para uso governamental ou empresarial real, recomenda-se validar os dados com fontes oficiais, fornecedores, orgaos reguladores e especialistas tecnicos.</p>',
         '</section>',
         '</main>',
         '</body>',

@@ -15,7 +15,7 @@
     this.loadSimulacoes = loadSimulacoes;
     this.getCurrentResult = getCurrentResult;
 
-    function calculate(input, assumptions) {
+    function calculate(input, assumptions, options) {
       var normalizedAssumptions = assumptions || {};
       var routeKey = normalizeRouteKey(input && input.recommendedRoute);
       var route = normalizedAssumptions[routeKey] || normalizedAssumptions.biometano || fallbackRoute();
@@ -23,7 +23,17 @@
       var currentAnnualCost = Number(input && input.monthlyCostDefault || 0) * 12;
       var greenAnnualCost = currentAnnualCost * Number(route.costFactor || 1);
       var annualSavings = currentAnnualCost - greenAnnualCost;
-      var paybackYears = annualSavings > 0 ? Number(input && input.investmentDefault || 0) / annualSavings : null;
+      var investment = Number(input && input.investmentDefault || 0);
+      var regulatoryFactor = options && options.regulatoryFactor;
+
+      if (regulatoryFactor === 'incentivo_favoravel') {
+        investment = investment * 0.9;
+      } else if (regulatoryFactor === 'barreira_regulatoria') {
+        investment = investment * 1.15;
+      }
+
+      var paybackYears = annualSavings > 0 ? investment / annualSavings : null;
+      var reliability = computeReliability(input, regulatoryFactor);
 
       return {
         routeKey: routeKey,
@@ -32,7 +42,10 @@
         greenAnnualCost: greenAnnualCost,
         annualSavings: annualSavings,
         paybackYears: paybackYears,
-        emissionReduction: Number(route.emissionReduction || 0)
+        emissionReduction: Number(route.emissionReduction || 0),
+        reliability: reliability,
+        regulatoryFactor: regulatoryFactor,
+        adjustedInvestment: investment
       };
     }
 
@@ -139,6 +152,44 @@
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/\s+/g, '_');
+    }
+
+    function computeReliability(input, regulatoryFactor) {
+      var base = 'mockado';
+      var confidence = 'Baixa';
+      var factors = [
+        'CAPEX', 'OPEX', 'tarifa de energia', 'preco do gas/diesel',
+        'custo de conexao', 'custo de adaptacao tecnica', 'incentivos fiscais',
+        'subsidios', 'regulacao setorial', 'contratos de fornecimento',
+        'disponibilidade regional', 'licenciamento', 'certificacoes',
+        'creditos de carbono', 'volatilidade de preco'
+      ];
+      var alertLevel = 'Nenhuma';
+
+      if (input && input.investmentDefault > 0 && input.monthlyCostDefault > 0) {
+        base = 'premissa_usuario';
+        confidence = 'Media';
+      }
+
+      if (regulatoryFactor === 'incentivo_favoravel') {
+        alertLevel = 'Incentivo favoravel identificado';
+      } else if (regulatoryFactor === 'barreira_regulatoria') {
+        alertLevel = 'Barreira regulatoria pode impactar o payback';
+        confidence = 'Baixa';
+      } else if (regulatoryFactor === 'informacao_insuficiente') {
+        alertLevel = 'Informacao regulatoria insuficiente';
+        confidence = 'Baixa';
+      } else {
+        alertLevel = 'Regulacao nao avaliada detalhadamente';
+      }
+
+      return {
+        level: confidence,
+        base: base,
+        baseLabel: base === 'mockado' ? 'Mockado / premissa de prototipo' : 'Estimativa baseada em dados declarados pelo usuario',
+        factors: factors,
+        alertLevel: alertLevel
+      };
     }
 
     function fallbackRoute() {
