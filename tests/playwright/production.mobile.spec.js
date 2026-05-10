@@ -46,7 +46,12 @@ test('producao mobile: rota verde carrega, layout nao estoura e feedback aparece
 
   const routeSelect = page.locator('select[ng-model="home.form.recommendedRoute"]');
   const routeOptions = page.locator('select[ng-model="home.form.recommendedRoute"] option');
-  await expect(routeSelect).toHaveValue('Biometano');
+  const selectedRoute = await routeSelect.evaluate((element) => {
+    return element.selectedOptions && element.selectedOptions[0]
+      ? element.selectedOptions[0].textContent.trim()
+      : '';
+  });
+  expect(selectedRoute).toBe('Biometano');
   expect(await routeOptions.count()).toBeGreaterThan(0);
 
   expect(pageErrors, 'page errors').toEqual([]);
