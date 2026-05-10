@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PoC PID ArcGIS no Leaflet | Viabilidade Verde</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+      :root {
+        --bg: #f4efe5;
+        --surface: rgba(255, 253, 247, 0.94);
+        --ink: #17231e;
+        --muted: #59675f;
+        --brand: #1e7a43;
+        --accent: #e1a641;
+        --line: rgba(23, 35, 30, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(225, 166, 65, 0.16), transparent 28%),
+          radial-gradient(circle at top right, rgba(30, 122, 67, 0.14), transparent 32%),
+          linear-gradient(180deg, #fbf8ef 0%, #f4efe5 50%, #edf3ea 100%);
+      }
+
+      main {
+        width: min(1160px, calc(100% - 24px));
+        margin: 0 auto;
+        padding: 20px 0 30px;
+      }
+
+      .hero,
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: 0 18px 48px rgba(23, 35, 30, 0.08);
+      }
+
+      .hero {
+        padding: 24px;
+        margin-bottom: 16px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 10px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--brand);
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 0.95;
+      }
+
+      .lead {
+        max-width: 860px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .meta {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .meta article {
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(23, 35, 30, 0.08);
+        background: rgba(255, 255, 255, 0.74);
+      }
+
+      .meta strong {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.8fr);
+        gap: 16px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      #map {
+        width: 100%;
+        min-height: 620px;
+        border-radius: 20px;
+        border: 1px solid rgba(23, 35, 30, 0.08);
+      }
+
+      .status {
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: #edf7ee;
+        color: var(--brand);
+        font-weight: 700;
+      }
+
+      .status.error {
+        background: #fff1f1;
+        color: #9b2c2c;
+      }
+
+      .stats {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .stats article {
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(23, 35, 30, 0.08);
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .stats strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .legend {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 16px;
+        color: var(--muted);
+      }
+
+      .legend li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .dot.ok {
+        background: #1e7a43;
+      }
+
+      .dot.pending {
+        background: #e1a641;
+      }
+
+      .link-block {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      a {
+        color: var(--brand);
+        word-break: break-word;
+      }
+
+      @media (max-width: 980px) {
+        .meta,
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        #map {
+          min-height: 460px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">PoC real data</span>
+        <h1>Leaflet consumindo a camada publica de biometano da PID</h1>
+        <p class="lead">
+          Esta prova de conceito consulta diretamente o ArcGIS REST da PID com <code>f=geojson</code>,
+          plota a camada <code>Biometano_Comercial_</code> no Leaflet e preserva o app principal
+          desacoplado dessa dependencia.
+        </p>
+        <div class="meta">
+          <article>
+            <strong>Camada</strong>
+            Biometano_Comercial_
+          </article>
+          <article>
+            <strong>Origem</strong>
+            ArcGIS FeatureServer publico
+          </article>
+          <article>
+            <strong>Token</strong>
+            Nao exigido no teste
+          </article>
+        </div>
+      </section>
+
+      <section class="layout">
+        <article class="panel">
+          <div id="map" aria-label="Mapa da camada de biometano"></div>
+        </article>
+
+        <aside class="panel">
+          <div id="status" class="status">Carregando camada publica da PID...</div>
+
+          <div class="stats">
+            <article>
+              <strong>Features carregadas</strong>
+              <span id="count">-</span>
+            </article>
+            <article>
+              <strong>Status encontrado</strong>
+              <span id="status-summary">-</span>
+            </article>
+            <article>
+              <strong>Municipios distintos</strong>
+              <span id="city-count">-</span>
+            </article>
+          </div>
+
+          <h2>Legenda</h2>
+          <ul class="legend">
+            <li><span class="dot ok"></span> Autorizada</li>
+            <li><span class="dot pending"></span> Em autorizacao / outros status</li>
+          </ul>
+
+          <h2>Endpoint usado</h2>
+          <p class="link-block">
+            <a id="endpoint-link" href="#" target="_blank" rel="noreferrer noopener"></a>
+          </p>
+
+          <h2>Observacoes</h2>
+          <p class="link-block">
+            Esta pagina nao altera o Viabilidade Verde principal. Ela prova que uma camada real da PID
+            pode ser consultada publicamente e renderizada em Leaflet sem Experience Builder.
+          </p>
+
+          <p class="link-block">
+            Voltar ao relatorio: <a href="/docs/report.html">/docs/report.html</a>
+          </p>
+        </aside>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      (function () {
+        var endpoint = 'https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Biometano_Comercial_/FeatureServer/0/query?where=1%3D1&outFields=Empresa,Munic%C3%ADpio,Status,Capacidade_Instalada__Nm__d_&returnGeometry=true&outSR=4326&f=geojson';
+        var statusNode = document.getElementById('status');
+        var countNode = document.getElementById('count');
+        var summaryNode = document.getElementById('status-summary');
+        var cityCountNode = document.getElementById('city-count');
+        var endpointLink = document.getElementById('endpoint-link');
+        endpointLink.href = endpoint;
+        endpointLink.textContent = endpoint;
+
+        var map = L.map('map', {
+          scrollWheelZoom: true
+        }).setView([-14.235, -51.9253], 4);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        function colorForStatus(value) {
+          return /autorizada/i.test(String(value || '')) ? '#1e7a43' : '#e1a641';
+        }
+
+        function setStatus(message, isError) {
+          statusNode.textContent = message;
+          statusNode.className = isError ? 'status error' : 'status';
+        }
+
+        fetch(endpoint)
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error('HTTP ' + response.status);
+            }
+
+            return response.json();
+          })
+          .then(function (geojson) {
+            var features = Array.isArray(geojson.features) ? geojson.features : [];
+            var statuses = {};
+            var cities = {};
+
+            L.geoJSON(geojson, {
+              pointToLayer: function (feature, latlng) {
+                var props = feature.properties || {};
+                var status = props.Status || 'Nao informado';
+                statuses[status] = (statuses[status] || 0) + 1;
+                if (props['Município']) {
+                  cities[props['Município']] = true;
+                }
+
+                return L.circleMarker(latlng, {
+                  radius: 7,
+                  weight: 2,
+                  color: '#ffffff',
+                  fillColor: colorForStatus(status),
+                  fillOpacity: 0.88
+                }).bindPopup(
+                  '<strong>' + (props.Empresa || 'Empresa nao informada') + '</strong><br>' +
+                  'Municipio: ' + (props['Município'] || 'n/d') + '<br>' +
+                  'Status: ' + status + '<br>' +
+                  'Capacidade: ' + (props.Capacidade_Instalada__Nm__d_ || 'n/d') + ' Nm3/d'
+                );
+              }
+            }).addTo(map);
+
+            if (features.length) {
+              map.fitBounds(L.geoJSON(geojson).getBounds(), {
+                padding: [20, 20]
+              });
+            }
+
+            countNode.textContent = String(features.length);
+            cityCountNode.textContent = String(Object.keys(cities).length);
+            summaryNode.textContent = Object.keys(statuses).map(function (key) {
+              return key + ': ' + statuses[key];
+            }).join(' | ');
+            setStatus('Camada publica carregada sem token.');
+          })
+          .catch(function (error) {
+            countNode.textContent = '0';
+            summaryNode.textContent = 'Falha ao consultar';
+            cityCountNode.textContent = '0';
+            setStatus('Falha ao carregar camada publica: ' + error.message, true);
+          });
+      })();
+    </script>
+  </body>
+</html>

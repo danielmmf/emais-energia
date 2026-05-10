@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Relatorio PID ArcGIS | Viabilidade Verde</title>
+    <style>
+      :root {
+        --bg: #f4efe5;
+        --surface: #fffdf7;
+        --ink: #17231e;
+        --muted: #59675f;
+        --brand: #1e7a43;
+        --accent: #e1a641;
+        --line: rgba(23, 35, 30, 0.12);
+        --warn: #8e5a12;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(225, 166, 65, 0.16), transparent 28%),
+          radial-gradient(circle at top right, rgba(30, 122, 67, 0.14), transparent 32%),
+          linear-gradient(180deg, #fbf8ef 0%, #f4efe5 50%, #edf3ea 100%);
+      }
+
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p,
+      li {
+        margin-top: 0;
+      }
+
+      .hero,
+      .section,
+      .note {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: 0 18px 48px rgba(23, 35, 30, 0.08);
+      }
+
+      .hero {
+        padding: 28px;
+        margin-bottom: 18px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 10px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--brand);
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        line-height: 0.95;
+      }
+
+      .lead {
+        max-width: 880px;
+        color: var(--muted);
+        line-height: 1.55;
+        font-size: 1rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin: 18px 0 0;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 20px;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(241, 248, 240, 0.94));
+        border: 1px solid rgba(23, 35, 30, 0.08);
+      }
+
+      .card strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 1.1rem;
+      }
+
+      .section {
+        padding: 24px;
+        margin-bottom: 18px;
+      }
+
+      .section h2 {
+        margin-bottom: 8px;
+        font-size: 1.5rem;
+      }
+
+      .section p,
+      .section li {
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 14px 0 0;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(23, 35, 30, 0.08);
+        background: #f6fbf5;
+        color: var(--ink);
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .pill.warn {
+        background: #fff7e8;
+        color: var(--warn);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+        font-size: 0.94rem;
+      }
+
+      th,
+      td {
+        padding: 12px 10px;
+        border-top: 1px solid rgba(23, 35, 30, 0.08);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--ink);
+        font-size: 0.84rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      code,
+      a {
+        word-break: break-word;
+      }
+
+      a {
+        color: var(--brand);
+      }
+
+      .note {
+        padding: 18px 20px;
+      }
+
+      @media (max-width: 980px) {
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        main {
+          width: min(100% - 20px, 1180px);
+          padding: 20px 0 32px;
+        }
+
+        .hero,
+        .section,
+        .note {
+          border-radius: 20px;
+          padding: 18px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+          display: block;
+        }
+
+        thead {
+          display: none;
+        }
+
+        td {
+          padding: 10px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">Investigacao ArcGIS PID</span>
+        <h1>Dados reais da PID sao consumiveis.</h1>
+        <p class="lead">
+          A experiencia publica da PID no ArcGIS expõe Web Maps e varias camadas reais via ArcGIS REST.
+          Nos testes feitos em 10 de maio de 2026, os endpoints principais responderam publicamente, sem
+          token, inclusive com suporte a <code>f=geojson</code> em pelo menos uma camada alinhada ao MVP.
+        </p>
+
+        <div class="grid">
+          <article class="card">
+            <span class="eyebrow">Acesso</span>
+            <strong>Sim, publico</strong>
+            <p>O item <code>4fde76ed5b3341cab0553adb3708ec69</code> esta com <code>access: public</code>.</p>
+          </article>
+          <article class="card">
+            <span class="eyebrow">Token</span>
+            <strong>Nao exigido</strong>
+            <p>As consultas testadas em <code>FeatureServer</code> e <code>WMS GetCapabilities</code> funcionaram sem token.</p>
+          </article>
+          <article class="card">
+            <span class="eyebrow">PoC</span>
+            <strong>Viavel no Leaflet</strong>
+            <p>Camada real de biometano carregada via <code>GeoJSON</code> direto do ArcGIS.</p>
+          </article>
+          <article class="card">
+            <span class="eyebrow">Risco</span>
+            <strong>MVP preservado</strong>
+            <p>O Viabilidade Verde pode manter fallback local e adicionar dados reais por etapas.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Resposta objetiva</h2>
+        <div class="pill-row">
+          <span class="pill">Dados reais acessiveis: sim</span>
+          <span class="pill">FeatureServer publico: sim</span>
+          <span class="pill">GeoJSON direto: sim</span>
+          <span class="pill">WMS publico: sim</span>
+          <span class="pill warn">Paridade total com ArcGIS: nao no prazo do hackathon</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Como a PID esta estruturada</h2>
+        <p>
+          A Web Experience publica da PID referencia tres Web Maps principais na configuracao publica
+          do Experience Builder:
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Bloco</th>
+              <th>Item ID</th>
+              <th>Titulo</th>
+              <th>Portal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Experiencia publica</td>
+              <td><code>4fde76ed5b3341cab0553adb3708ec69</code></td>
+              <td>PID - Plataforma Interativa de Descarbonizacao</td>
+              <td><a href="https://www.arcgis.com/sharing/rest/content/items/4fde76ed5b3341cab0553adb3708ec69?f=json">arcgis.com item publico</a></td>
+            </tr>
+            <tr>
+              <td>Web Map 1</td>
+              <td><code>08924ffbba6b410e8523561254a4f9e1</code></td>
+              <td>old_Mapa de Energia Renovavel</td>
+              <td><a href="https://emais.maps.arcgis.com/sharing/rest/content/items/08924ffbba6b410e8523561254a4f9e1/data?f=json">web map publico</a></td>
+            </tr>
+            <tr>
+              <td>Web Map 2</td>
+              <td><code>c779b53910e54aab984f20ecf089a047</code></td>
+              <td>Mapa de Hidrogenio</td>
+              <td><a href="https://emais.maps.arcgis.com/sharing/rest/content/items/c779b53910e54aab984f20ecf089a047/data?f=json">web map publico</a></td>
+            </tr>
+            <tr>
+              <td>Web Map 3</td>
+              <td><code>d1d29036da094aeaabc096e9bcb13979</code></td>
+              <td>Mapa de Infraestrutura</td>
+              <td><a href="https://emais.maps.arcgis.com/sharing/rest/content/items/d1d29036da094aeaabc096e9bcb13979/data?f=json">web map publico</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>Camadas reais encontradas</h2>
+        <p>
+          Abaixo estao algumas camadas relevantes encontradas nas chamadas de rede e nos Web Maps publicos.
+          Todas as URLs abaixo responderam publicamente nos testes desta investigacao.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th>Camada</th>
+              <th>Tipo</th>
+              <th>Endpoint</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Hidrogenio</td>
+              <td>H2 projetos planejados</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/H2_projetos_planejados/FeatureServer/1?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Hidrogenio</td>
+              <td>H2 projetos avancados</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/H2_projetos_avan%C3%A7ados/FeatureServer/1?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Hidrogenio</td>
+              <td>H2 Hubs</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/H2_Hubs/FeatureServer/1?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Infraestrutura</td>
+              <td>Biometano Comercial</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Biometano_Comercial_/FeatureServer/0?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Infraestrutura</td>
+              <td>Instalacoes Portuarias</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Instala%C3%A7%C3%B5es_Portu%C3%A1rias/FeatureServer/0?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Infraestrutura</td>
+              <td>Gasodutos de transporte</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Gasodutos_de_transporte/FeatureServer/1?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Infraestrutura</td>
+              <td>Linha Transmissao existente</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Linha_Transmiss%C3%A3o_existente/FeatureServer/1?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Energia</td>
+              <td>Solar UFV existente</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Solar_UFV_existente/FeatureServer/1?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Energia</td>
+              <td>Eolica Existente</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/E%C3%B3lica_Existente/FeatureServer/1?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Base setorial</td>
+              <td>Industrias</td>
+              <td>FeatureServer</td>
+              <td><a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Industrias/FeatureServer/0?f=json">abrir</a></td>
+            </tr>
+            <tr>
+              <td>Renovaveis</td>
+              <td>WMS_Webmap_EPE</td>
+              <td>WMS</td>
+              <td><a href="https://gisepeprd2.epe.gov.br/arcgis/services/SMA/WMS_Webmap_EPE/MapServer/WMSServer?SERVICE=WMS&amp;REQUEST=GetCapabilities">capabilities</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>Testes feitos</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Teste</th>
+              <th>Resultado</th>
+              <th>Observacao</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Metadado do item publico</td>
+              <td>OK</td>
+              <td>O item da experiencia respondeu com <code>access: public</code>.</td>
+            </tr>
+            <tr>
+              <td>Config da experiencia</td>
+              <td>OK</td>
+              <td>O JSON publico mostrou os Web Maps referenciados em <code>dataSources</code>.</td>
+            </tr>
+            <tr>
+              <td>FeatureServer industrias</td>
+              <td>OK</td>
+              <td>Consulta publica sem token retornou 1 feature de amostra.</td>
+            </tr>
+            <tr>
+              <td>FeatureServer biometano</td>
+              <td>OK</td>
+              <td>Contagem publica retornou <code>40</code> features sem token.</td>
+            </tr>
+            <tr>
+              <td>GeoJSON direto</td>
+              <td>OK</td>
+              <td><code>f=geojson</code> funcionou para a camada de biometano e para portos.</td>
+            </tr>
+            <tr>
+              <td>WMS GetCapabilities</td>
+              <td>OK</td>
+              <td>O endpoint respondeu publicamente, sem autenticacao.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>O que da para replicar</h2>
+        <p>
+          Sim, da para consumir parte relevante do dado real da PID no Viabilidade Verde sem depender
+          do ArcGIS Experience Builder. O caminho mais barato e robusto para o hackathon eh:
+        </p>
+        <ol>
+          <li>Consumir camadas pontuais via <code>FeatureServer query?f=geojson</code>.</li>
+          <li>Normalizar atributos em um service proprio e manter fallback local se a consulta falhar.</li>
+          <li>Adicionar por etapas apenas as camadas que reforcam a simulacao economica.</li>
+        </ol>
+        <p>
+          O que nao faz sentido prometer agora eh paridade completa com a experiencia ArcGIS. A PID mistura
+          FeatureServer, WMS, raster, group layers, simbologia propria, widgets de Experience Builder,
+          popups, filtros, legendas, proxy e comportamento de performance do stack Esri.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>Esforco estimado</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Escopo</th>
+              <th>Estimativa</th>
+              <th>Leitura</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1 camada real no app</td>
+              <td>0,5 a 1 dia</td>
+              <td>GeoJSON direto, popup simples, fallback local mantido.</td>
+            </tr>
+            <tr>
+              <td>3 a 5 camadas reais prioritarias</td>
+              <td>1 a 2 dias</td>
+              <td>Normalizacao de atributos, estilos, toggles, cache leve e teste.</td>
+            </tr>
+            <tr>
+              <td>Camadas mistas com linhas e WMS</td>
+              <td>3 a 5 dias</td>
+              <td>Mais tratamento de performance, legenda, reprojecao e comportamento mobile.</td>
+            </tr>
+            <tr>
+              <td>Paridade funcional ampla com a PID em ArcGIS</td>
+              <td>2 a 4 semanas</td>
+              <td>Reimplementacao relevante de widgets, filtros, rendering e UX do ecossistema Esri.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>O que ja temos hoje no Viabilidade Verde</h2>
+        <ul>
+          <li>Mapa leve em Leaflet com camadas e painel lateral.</li>
+          <li>Fluxo completo de simulacao economica.</li>
+          <li>Relatorio executivo e exportacao.</li>
+          <li>Fallback local em JSON/GeoJSON preservado.</li>
+          <li>Base pronta para trocar dados mockados por fontes reais por etapa.</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2>Prova de conceito</h2>
+        <p>
+          Foi criada uma PoC isolada em Leaflet usando a camada real
+          <code>Biometano_Comercial_</code> da PID via ArcGIS REST com <code>f=geojson</code>.
+        </p>
+        <p>
+          Abrir PoC: <a href="/docs/pid-arcgis-poc.html">/docs/pid-arcgis-poc.html</a>
+        </p>
+        <p>
+          Endpoint usado:
+          <a href="https://services6.arcgis.com/I9CTS4kjOw8Dsslu/arcgis/rest/services/Biometano_Comercial_/FeatureServer/0/query?where=1%3D1&amp;outFields=Empresa,Munic%C3%ADpio,Status,Capacidade_Instalada__Nm__d_&amp;returnGeometry=true&amp;outSR=4326&amp;f=geojson">
+            query publica em GeoJSON
+          </a>
+        </p>
+      </section>
+
+      <aside class="note">
+        <strong>Conclusao pragmatica:</strong>
+        podemos puxar dados reais da PID agora, mas o melhor uso para o hackathon eh integrar poucas camadas
+        de alto valor e manter o fallback local. Isso traz credibilidade sem amarrar o produto ao custo de
+        reimplementar a experiencia inteira do ArcGIS.
+      </aside>
+    </main>
+  </body>
+</html>
