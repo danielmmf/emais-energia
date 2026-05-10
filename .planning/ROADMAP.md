@@ -12,10 +12,10 @@ Entregar um MVP demonstrável que converte exploração territorial em decisão 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Setup e Base Visual** - Estruturar app AngularJS/AngularFire, landing inicial, mapa base e fallback de dados
-- [ ] **Phase 2: Camadas e Interação Territorial** - Implementar camadas, clusters, regiões e painel lateral acionável
-- [ ] **Phase 3: Simulador de Viabilidade** - Implementar formulário, motor de cálculo e classificação
-- [ ] **Phase 4: Resultado e Relatório Executivo** - Exibir cards, recomendação textual e relatório em tela
+- [x] **Phase 1: Setup e Base Visual** - Estruturar app AngularJS/AngularFire, landing inicial, mapa base e fallback de dados (completed 2026-05-09)
+- [x] **Phase 2: Camadas e Interação Territorial** - Implementar camadas, clusters, regiões e painel lateral acionável (completed 2026-05-09)
+- [x] **Phase 3: Simulador de Viabilidade** - Implementar formulário, motor de cálculo e classificação (completed 2026-05-09)
+- [x] **Phase 4: Resultado e Relatório Executivo** - Exibir cards, recomendação textual e relatório em tela (completed 2026-05-10)
 - [ ] **Phase 5: Polimento e Demo** - Ajustar UX, responsividade, transparência e roteiro final de demonstração
 
 ## Phase Details
@@ -32,9 +32,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Criar estrutura AngularJS 1.x + AngularFire e layout base (landing + shell da aplicação)
-- [ ] 01-02: Integrar Leaflet/ui-leaflet e configurar mapa inicial do Brasil
-- [ ] 01-03: Implementar carregamento de dados com Firebase opcional e fallback local JSON/GeoJSON
+- [x] 01-01: Criar estrutura AngularJS 1.x + AngularFire e layout base (landing + shell da aplicação)
+- [x] 01-02: Integrar Leaflet/ui-leaflet e configurar mapa inicial do Brasil
+- [x] 01-03: Implementar carregamento de dados com Firebase opcional e fallback local JSON/GeoJSON
 
 ### Phase 2: Camadas e Interação Territorial
 **Goal**: Permitir leitura territorial prática com camadas úteis e contexto lateral para iniciar simulação
@@ -48,10 +48,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 02-01: Implementar camadas de marcadores (indústrias, biometano, hidrogênio, portos, fertilizantes, SAF)
-- [ ] 02-02: Implementar clusters e comportamento de zoom/interação
-- [ ] 02-03: Implementar polígonos de regiões prioritárias e linhas de infraestrutura
-- [ ] 02-04: Implementar painel lateral com dados contextuais e gatilho da simulação
+- [x] 02-01: Implementar camadas de marcadores (indústrias, biometano, hidrogênio, portos, fertilizantes, SAF)
+- [x] 02-02: Implementar clusters e comportamento de zoom/interação
+- [x] 02-03: Implementar polígonos de regiões prioritárias e linhas de infraestrutura
+- [x] 02-04: Implementar painel lateral com dados contextuais e gatilho da simulação
 
 ### Phase 3: Simulador de Viabilidade
 **Goal**: Entregar cálculo econômico completo e classificação de viabilidade para rotas verdes
@@ -65,9 +65,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Implementar formulário de simulação com pré-preenchimento por oportunidade
-- [ ] 03-02: Implementar serviço de cálculo com fatores mockados por rota
-- [ ] 03-03: Implementar regras de classificação, persistência de simulação no Firebase (quando ativo) e fallback resiliente
+- [x] 03-01: Implementar formulário de simulação com pré-preenchimento por oportunidade
+- [x] 03-02: Implementar serviço de cálculo com fatores mockados por rota
+- [x] 03-03: Implementar regras de classificação, persistência de simulação no Firebase (quando ativo) e fallback resiliente
 
 ### Phase 4: Resultado e Relatório Executivo
 **Goal**: Transformar cálculo em decisão clara com cards, recomendação acionável e relatório para reunião
@@ -108,8 +108,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Setup e Base Visual | 0/3 | Not started | - |
-| 2. Camadas e Interação Territorial | 0/4 | Not started | - |
-| 3. Simulador de Viabilidade | 0/3 | Not started | - |
-| 4. Resultado e Relatório Executivo | 0/3 | Not started | - |
+| 1. Setup e Base Visual | 3/3 | Complete    | 2026-05-09 |
+| 2. Camadas e Interação Territorial | 4/4 | Complete    | 2026-05-09 |
+| 3. Simulador de Viabilidade | 5/5 | Complete    | 2026-05-09 |
+| 4. Resultado e Relatório Executivo | 0/3 | Complete    | 2026-05-10 |
 | 5. Polimento e Demo | 0/3 | Not started | - |

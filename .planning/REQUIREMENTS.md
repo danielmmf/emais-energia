@@ -7,48 +7,48 @@
 
 ### Landing e Navegação
 
-- [ ] **LAND-01**: Usuário pode acessar uma tela inicial com nome do produto, proposta de valor e CTA "Explorar mapa"
-- [ ] **LAND-02**: Usuário pode navegar da landing para o mapa sem autenticação
+- [x] **LAND-01**: Usuário pode acessar uma tela inicial com nome do produto, proposta de valor e CTA "Explorar mapa"
+- [x] **LAND-02**: Usuário pode navegar da landing para o mapa sem autenticação
 
 ### Mapa e Camadas
 
-- [ ] **MAP-01**: Usuário visualiza mapa interativo do Brasil em navegador comum
-- [ ] **MAP-02**: Usuário liga/desliga camadas de dados (indústrias, biometano, hidrogênio, portos, fertilizantes, SAF, infraestrutura, energia renovável)
-- [ ] **MAP-03**: Usuário visualiza marcadores agrupados por cluster em níveis de zoom amplos
-- [ ] **MAP-04**: Usuário visualiza regiões prioritárias destacadas por polígonos GeoJSON
-- [ ] **MAP-05**: Usuário visualiza infraestrutura territorial por linhas (ex.: gasodutos/transmissão)
+- [x] **MAP-01**: Usuário visualiza mapa interativo do Brasil em navegador comum
+- [x] **MAP-02**: Usuário liga/desliga camadas de dados (indústrias, biometano, hidrogênio, portos, fertilizantes, SAF, infraestrutura, energia renovável)
+- [x] **MAP-03**: Usuário visualiza marcadores agrupados por cluster em níveis de zoom amplos
+- [x] **MAP-04**: Usuário visualiza regiões prioritárias destacadas por polígonos GeoJSON
+- [x] **MAP-05**: Usuário visualiza infraestrutura territorial por linhas (ex.: gasodutos/transmissão)
 
 ### Seleção e Contexto Territorial
 
-- [ ] **SELC-01**: Usuário pode clicar em região, marcador ou oportunidade para abrir contexto territorial
-- [ ] **SELC-02**: Painel lateral exibe região, setor, fonte atual sugerida, rota verde sugerida, potencial, infraestrutura e risco inicial
-- [ ] **SELC-03**: Painel lateral permite iniciar simulação por ação explícita "Calcular Viabilidade"
+- [x] **SELC-01**: Usuário pode clicar em região, marcador ou oportunidade para abrir contexto territorial
+- [x] **SELC-02**: Painel lateral exibe região, setor, fonte atual sugerida, rota verde sugerida, potencial, infraestrutura e risco inicial
+- [x] **SELC-03**: Painel lateral permite iniciar simulação por ação explícita "Calcular Viabilidade"
 
 ### Simulação e Cálculos
 
-- [ ] **SIM-01**: Usuário informa/ajusta setor, fonte atual, gasto mensal atual, rota verde e investimento estimado
-- [ ] **SIM-02**: Sistema calcula custo atual anual (`gasto_mensal * 12`)
-- [ ] **SIM-03**: Sistema calcula custo verde anual por fator da rota selecionada
-- [ ] **SIM-04**: Sistema calcula economia anual (`custo_atual_anual - custo_verde_anual`)
-- [ ] **SIM-05**: Sistema calcula payback (`investimento / economia_anual`) quando economia anual for positiva
-- [ ] **SIM-06**: Sistema estima redução de emissões com base no fator da rota
-- [ ] **SIM-07**: Sistema classifica resultado em Alta, Média, Baixa, Estratégica ou Não recomendada no cenário atual
+- [x] **SIM-01**: Usuário informa/ajusta setor, fonte atual, gasto mensal atual, rota verde e investimento estimado
+- [x] **SIM-02**: Sistema calcula custo atual anual (`gasto_mensal * 12`)
+- [x] **SIM-03**: Sistema calcula custo verde anual por fator da rota selecionada
+- [x] **SIM-04**: Sistema calcula economia anual (`custo_atual_anual - custo_verde_anual`)
+- [x] **SIM-05**: Sistema calcula payback (`investimento / economia_anual`) quando economia anual for positiva
+- [x] **SIM-06**: Sistema estima redução de emissões com base no fator da rota
+- [x] **SIM-07**: Sistema classifica resultado em Alta, Média, Baixa, Estratégica ou Não recomendada no cenário atual
 
 ### Dados e Firebase
 
-- [ ] **DATA-01**: Sistema lê oportunidades e premissas do Firebase Realtime Database quando configuração AngularFire estiver ativa
-- [ ] **DATA-02**: Sistema usa fallback local em JSON/GeoJSON quando Firebase não estiver disponível ou não configurado
-- [ ] **DATA-03**: Sistema registra simulações no Firebase quando ativo, sem bloquear fluxo quando estiver em fallback local
+- [x] **DATA-01**: Sistema lê oportunidades e premissas do Firebase Realtime Database quando configuração AngularFire estiver ativa
+- [x] **DATA-02**: Sistema usa fallback local em JSON/GeoJSON quando Firebase não estiver disponível ou não configurado
+- [x] **DATA-03**: Sistema registra simulações no Firebase quando ativo, sem bloquear fluxo quando estiver em fallback local
 
 ### Resultado e Relatório
 
-- [ ] **RES-01**: Usuário visualiza cards com custo atual anual, custo verde anual, investimento, economia anual, payback, redução e viabilidade
-- [ ] **RES-02**: Sistema gera recomendação textual simples com próximos passos
-- [ ] **RPT-01**: Usuário gera relatório executivo em tela com resumo, indicadores, premissas e próximos passos
+- [x] **RES-01**: Usuário visualiza cards com custo atual anual, custo verde anual, investimento, economia anual, payback, redução e viabilidade
+- [x] **RES-02**: Sistema gera recomendação textual simples com próximos passos
+- [x] **RPT-01**: Usuário gera relatório executivo em tela com resumo, indicadores, premissas e próximos passos
 
 ### Transparência e Qualidade de Uso
 
-- [ ] **TRN-01**: Interface exibe aviso de premissas simplificadas de protótipo em pontos de cálculo e relatório
+- [x] **TRN-01**: Interface exibe aviso de premissas simplificadas de protótipo em pontos de cálculo e relatório
 - [ ] **TRN-02**: Interface mantém legibilidade e contraste adequados para entendimento rápido por não técnicos
 - [ ] **TRN-03**: Fluxo principal completo da demo pode ser apresentado em até 3 minutos
 
@@ -82,30 +82,30 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LAND-01 | Phase 1 | Pending |
-| LAND-02 | Phase 1 | Pending |
-| MAP-01 | Phase 1 | Pending |
-| MAP-02 | Phase 2 | Pending |
-| MAP-03 | Phase 2 | Pending |
-| MAP-04 | Phase 2 | Pending |
-| MAP-05 | Phase 2 | Pending |
-| SELC-01 | Phase 2 | Pending |
-| SELC-02 | Phase 2 | Pending |
-| SELC-03 | Phase 2 | Pending |
-| SIM-01 | Phase 3 | Pending |
-| SIM-02 | Phase 3 | Pending |
-| SIM-03 | Phase 3 | Pending |
-| SIM-04 | Phase 3 | Pending |
-| SIM-05 | Phase 3 | Pending |
-| SIM-06 | Phase 3 | Pending |
-| SIM-07 | Phase 3 | Pending |
-| DATA-01 | Phase 1 | Pending |
-| DATA-02 | Phase 1 | Pending |
-| DATA-03 | Phase 3 | Pending |
-| RES-01 | Phase 4 | Pending |
-| RES-02 | Phase 4 | Pending |
-| RPT-01 | Phase 4 | Pending |
-| TRN-01 | Phase 4 | Pending |
+| LAND-01 | Phase 1 | Complete |
+| LAND-02 | Phase 1 | Complete |
+| MAP-01 | Phase 1 | Complete |
+| MAP-02 | Phase 2 | Complete |
+| MAP-03 | Phase 2 | Complete |
+| MAP-04 | Phase 2 | Complete |
+| MAP-05 | Phase 2 | Complete |
+| SELC-01 | Phase 2 | Complete |
+| SELC-02 | Phase 2 | Complete |
+| SELC-03 | Phase 2 | Complete |
+| SIM-01 | Phase 3 | Complete |
+| SIM-02 | Phase 3 | Complete |
+| SIM-03 | Phase 3 | Complete |
+| SIM-04 | Phase 3 | Complete |
+| SIM-05 | Phase 3 | Complete |
+| SIM-06 | Phase 3 | Complete |
+| SIM-07 | Phase 3 | Complete |
+| DATA-01 | Phase 1 | Complete |
+| DATA-02 | Phase 1 | Complete |
+| DATA-03 | Phase 3 | Complete |
+| RES-01 | Phase 4 | Complete |
+| RES-02 | Phase 4 | Complete |
+| RPT-01 | Phase 4 | Complete |
+| TRN-01 | Phase 4 | Complete |
 | TRN-02 | Phase 5 | Pending |
 | TRN-03 | Phase 5 | Pending |
 
