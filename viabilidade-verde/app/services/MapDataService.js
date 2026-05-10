@@ -107,34 +107,37 @@
     };
 
     this.buildInfrastructurePaths = function buildInfrastructurePaths(infraCollection, visibleLayers) {
-      if (!visibleLayers.infrastructure) {
-        return {};
-      }
+       if (!visibleLayers.infrastructure) {
+         return {};
+       }
 
-      var paths = {};
-      var features = infraCollection && Array.isArray(infraCollection.features)
-        ? infraCollection.features
-        : [];
+       var paths = {};
+       var features = infraCollection && Array.isArray(infraCollection.features)
+         ? infraCollection.features
+         : [];
 
-      features.forEach(function (feature, index) {
-        var geometry = feature.geometry || {};
-        var properties = feature.properties || {};
+       features.forEach(function (feature, index) {
+         var geometry = feature.geometry || {};
+         var properties = feature.properties || {};
 
-        if (geometry.type === 'LineString' && Array.isArray(geometry.coordinates)) {
-          paths['infra-' + (properties.id || index)] = {
-            type: 'polyline',
-            latlngs: coordinatesToLatLngs(geometry.coordinates),
-            color: '#1565c0',
-            weight: 2,
-            opacity: 0.8,
-            dashArray: '6,4',
-            clickable: false
-          };
-        }
-      });
+         if (geometry.type === 'LineString' && Array.isArray(geometry.coordinates)) {
+           var infraId = properties.id || ('infra-' + index);
+           // Replace hyphens with underscores to comply with AngularJS-Leaflet path naming rules
+           infraId = infraId.replace(/-/g, '_');
+           paths[infraId] = {
+             type: 'polyline',
+             latlngs: coordinatesToLatLngs(geometry.coordinates),
+             color: '#1565c0',
+             weight: 2,
+             opacity: 0.8,
+             dashArray: '6,4',
+             clickable: false
+           };
+         }
+       });
 
-      return paths;
-    };
+       return paths;
+     };
 
     this.buildRegionIndex = function buildRegionIndex(regionCollection) {
       var index = {};
