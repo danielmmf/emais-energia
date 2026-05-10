@@ -102,7 +102,7 @@
       <p ng-if="home.loading">Carregando dados...</p>
       <p class="error" ng-if="home.error">{{ home.error }}</p>
       <p class="helper data-source-note" ng-if="!home.loading">
-        {{ home.pidDataStatus.portsLive ? ('Portos da PID no mapa: ' + home.pidDataStatus.portsCount + ' registros reais') : 'Portos da PID indisponiveis no momento. Fallback local ativo.' }}
+        {{ home.pidDataStatus.label }}
       </p>
 
       <ul class="op-list" ng-if="!home.loading">

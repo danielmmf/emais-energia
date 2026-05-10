@@ -33,8 +33,10 @@
     vm.simulationReady = false;
     vm.layerToolbarCollapsed = false;
     vm.pidDataStatus = {
-      portsLive: false,
-      portsCount: 0
+      ports: { count: 0, fromCache: false },
+      biometano: { count: 0, fromCache: false },
+      hidrogenio: { count: 0, fromCache: false },
+      label: 'Camadas PID indisponiveis no momento. Fallback local ativo.'
     };
 
     vm.layerToggles = {
@@ -118,21 +120,40 @@
         FirebaseDataService.getAssumptions(),
         FirebaseDataService.getRegions(),
         FirebaseDataService.getInfrastructure(),
-        FirebaseDataService.getPidArcgisPorts()
+        FirebaseDataService.getPidArcgisPorts(),
+        FirebaseDataService.getPidArcgisBiomethane(),
+        FirebaseDataService.getPidArcgisHydrogen()
       ]).then(function (response) {
         var baseOpportunities = response[0] || [];
-        var pidArcgisPorts = response[4] || [];
+        var pidArcgisPorts = response[4] || { items: [], fromCache: false };
+        var pidArcgisBiomethane = response[5] || { items: [], fromCache: false };
+        var pidArcgisHydrogen = response[6] || { items: [], fromCache: false };
 
         vm.sidebarOpportunities = baseOpportunities.filter(function (opportunity) {
           return opportunity.showInSidebar !== false;
         });
-        vm.mapOpportunities = buildMapOpportunities(baseOpportunities, pidArcgisPorts);
+        vm.mapOpportunities = buildMapOpportunities(baseOpportunities, {
+          portos: pidArcgisPorts.items,
+          biometano: pidArcgisBiomethane.items,
+          hidrogenio: pidArcgisHydrogen.items
+        });
         vm.opportunities = vm.mapOpportunities;
         vm.assumptions = response[1] || {};
         vm.regions = response[2] || { type: 'FeatureCollection', features: [] };
         vm.infrastructure = response[3] || { type: 'FeatureCollection', features: [] };
-        vm.pidDataStatus.portsLive = pidArcgisPorts.length > 0;
-        vm.pidDataStatus.portsCount = pidArcgisPorts.length;
+        vm.pidDataStatus.ports = {
+          count: pidArcgisPorts.items.length,
+          fromCache: !!pidArcgisPorts.fromCache
+        };
+        vm.pidDataStatus.biometano = {
+          count: pidArcgisBiomethane.items.length,
+          fromCache: !!pidArcgisBiomethane.fromCache
+        };
+        vm.pidDataStatus.hidrogenio = {
+          count: pidArcgisHydrogen.items.length,
+          fromCache: !!pidArcgisHydrogen.fromCache
+        };
+        vm.pidDataStatus.label = buildPidDataStatusLabel(vm.pidDataStatus);
         vm.regionIndex = MapDataService.buildRegionIndex(vm.regions);
 
         vm.opportunitiesById = {};
@@ -607,17 +628,51 @@
       return 'viabilidade-verde-' + (region || 'simulacao') + '.html';
     }
 
-    function buildMapOpportunities(baseOpportunities, pidArcgisPorts) {
+    function buildMapOpportunities(baseOpportunities, replacementsByLayer) {
       var allBase = baseOpportunities || [];
-      var nonPortBase = allBase.filter(function (opportunity) {
-        return String(opportunity.layerType || '').toLowerCase() !== 'portos';
-      });
-      var basePorts = allBase.filter(function (opportunity) {
-        return String(opportunity.layerType || '').toLowerCase() === 'portos';
-      });
-      var livePorts = Array.isArray(pidArcgisPorts) ? pidArcgisPorts : [];
+      var replacementKeys = Object.keys(replacementsByLayer || {});
+      var merged = [];
 
-      return nonPortBase.concat(livePorts.length ? livePorts : basePorts);
+      allBase.forEach(function (opportunity) {
+        var layerType = String(opportunity.layerType || '').toLowerCase();
+        if (replacementKeys.indexOf(layerType) !== -1) {
+          return;
+        }
+        merged.push(opportunity);
+      });
+
+      replacementKeys.forEach(function (layerType) {
+        var liveItems = Array.isArray(replacementsByLayer[layerType]) ? replacementsByLayer[layerType] : [];
+        var fallbackItems = allBase.filter(function (opportunity) {
+          return String(opportunity.layerType || '').toLowerCase() === layerType;
+        });
+
+        merged = merged.concat(liveItems.length ? liveItems : fallbackItems);
+      });
+
+      return merged;
+    }
+
+    function buildPidDataStatusLabel(status) {
+      var parts = [];
+
+      if (status.ports.count) {
+        parts.push('Portos ' + status.ports.count + (status.ports.fromCache ? ' (cache)' : ''));
+      }
+
+      if (status.biometano.count) {
+        parts.push('Biometano ' + status.biometano.count + (status.biometano.fromCache ? ' (cache)' : ''));
+      }
+
+      if (status.hidrogenio.count) {
+        parts.push('H2 ' + status.hidrogenio.count + (status.hidrogenio.fromCache ? ' (cache)' : ''));
+      }
+
+      if (!parts.length) {
+        return 'Camadas PID indisponiveis no momento. Fallback local ativo.';
+      }
+
+      return 'PID no mapa: ' + parts.join(' • ');
     }
 
     function buildRouteOptions() {
