@@ -45,25 +45,27 @@
        vm.layerToolbarCollapsed = !vm.layerToolbarCollapsed;
      };
 
-     // Feedback Modal
-     vm.feedbackModal = {
-       visible: false,
-       step: 'profile',
-       password: '',
-       passwordError: false,
-       mentor: {
-         type: '',
-         inputMode: '',
-         feedbackText: ''
-       },
-       gang: {
-         type: '',
-         priority: '',
-         message: ''
-       },
-       xereta: {
-         opinion: ''
-       }
+      // Feedback Modal
+      vm.feedbackModal = {
+        visible: false,
+        step: 'profile',
+        password: '',
+        passwordError: false,
+        selectedProfile: null,
+        mentor: {
+          type: '',
+          inputMode: '',
+          feedbackText: ''
+        },
+        gang: {
+          type: '',
+          priority: '',
+          message: ''
+        },
+        xereta: {
+          opinion: ''
+        }
+      };
      };
 
      // Feedback Methods
@@ -140,23 +142,10 @@
         vm.infrastructure = response[3] || { type: 'FeatureCollection', features: [] };
         vm.regionIndex = MapDataService.buildRegionIndex(vm.regions);
 
-        vm.opportunitiesById = {};
-        vm.opportunities.forEach(function (opportunity) {
-          vm.opportunitiesById[opportunity.id] = opportunity;
-        });
-
-        vm.availableRoutes = Object.keys(vm.assumptions).map(function (key) {
-          return vm.assumptions[key].label;
-        });
-
-        refreshMapData();
-      }).catch(function (err) {
-        vm.error = 'Falha ao carregar dados: ' + (err && err.message ? err.message : 'erro desconhecido');
-      }).finally(function () {
-        vm.loading = false;
-        FirebaseDataService.retryPendingSimulations();
-      });
-    }
+          vm.opportunitiesById = {};
+          vm.opportunities.forEach(function (opportunity) {
+            vm.opportunitiesById[opportunity.id] = opportunity;
+          });
 
     function bindMapEvents() {
       $scope.$on('leafletDirectiveMarker.click', function (event, args) {
