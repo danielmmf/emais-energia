@@ -50,7 +50,7 @@ test('producao mobile: rota verde carrega, layout nao estoura e feedback aparece
   expect(overflow.html).toBeLessThanOrEqual(4);
 
   await page.getByText('Goias - Biometano para Fertilizantes').click();
-  await page.getByRole('button', { name: 'Calcular Viabilidade' }).click();
+  await page.locator('.mobile-selection-card').getByRole('button', { name: 'Calcular Viabilidade' }).click();
 
   const routeSelect = page.locator('select[ng-model="home.form.recommendedRoute"]');
   const routeOptions = page.locator('select[ng-model="home.form.recommendedRoute"] option');
