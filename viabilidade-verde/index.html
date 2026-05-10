@@ -17,33 +17,33 @@
 <body ng-controller="HomeController as home">
   <header class="topbar">
     <div class="brand-block">
-      <p class="eyebrow">Decisao economica para transicao energetica</p>
+      <p class="eyebrow">Inteligencia economica para transicao energetica</p>
       <h1>Viabilidade Verde</h1>
       <p class="tagline">A transicao energetica so acelera quando a conta fecha.</p>
     </div>
     <div class="topbar-meta">
       <span class="chip" ng-class="{'chip-live': home.firebaseEnabled, 'chip-fallback': !home.firebaseEnabled}">
-        {{ home.firebaseEnabled ? 'Dados em tempo real (Firebase)' : 'Fallback local (JSON)' }}
+        {{ home.firebaseEnabled ? 'Dados em tempo real' : 'Fallback local' }}
       </span>
-      <p class="meta-note">Mapa leve, simulacao rapida e recomendacao pronta para pitch.</p>
+      <p class="meta-note">Mapa estrategico, simulacao rapida e recomendacao analitica.</p>
     </div>
   </header>
 
   <section class="hero-strip">
     <article>
-      <span class="hero-kicker">Fluxo da demo</span>
-      <strong>Territorio</strong>
-      <p>Explore regioes, ativos e infraestrutura com leitura rapida.</p>
+      <span class="hero-kicker">Inteligencia geoespacial</span>
+      <strong>Territorio estrategico</strong>
+      <p>Explore regioes, ativos e infraestrutura com leitura analitica orientada a decisao.</p>
     </article>
     <article>
-      <span class="hero-kicker">Pergunta central</span>
+      <span class="hero-kicker">Tomada de decisao</span>
       <strong>A conta fecha?</strong>
-      <p>Compare custo atual, rota verde, economia anual e payback.</p>
+      <p>Compare custo atual, rota verde, economia anual e payback com transparencia metodologica.</p>
     </article>
     <article>
-      <span class="hero-kicker">Saida</span>
-      <strong>Decisao executiva</strong>
-      <p>Receba recomendacao textual e relatorio para reuniao.</p>
+      <span class="hero-kicker">Output executivo</span>
+      <strong>Relatorio analitico</strong>
+      <p>Receba recomendacao com nivel de confiabilidade, fatores regulatorios e dados faltantes.</p>
     </article>
   </section>
 
@@ -55,8 +55,8 @@
     <section class="map-panel" ng-class="{'is-fullscreen': home.mapFullscreen}">
       <div class="panel-head">
         <div>
-          <p class="section-kicker">Mapa de oportunidades</p>
-          <h2>Leitura territorial orientada a decisao</h2>
+          <p class="section-kicker">Mapa de inteligencia territorial</p>
+          <h2>Leitura analitica orientada a decisao</h2>
         </div>
         <p class="panel-copy">Combine camadas, aproxime o mapa e use o painel lateral para transformar contexto em simulacao.</p>
       </div>
@@ -105,9 +105,9 @@
 
     <aside class="sidebar" id="simulation-panel" ng-class="{'hidden-by-fullscreen': home.mapFullscreen}">
       <div class="sidebar-hero">
-        <p class="section-kicker">Painel de decisao</p>
+        <p class="section-kicker">Painel analitico</p>
         <h2>Da oportunidade ao calculo</h2>
-        <p>Selecione um caso, revise as premissas e dispare a simulacao com um clique.</p>
+        <p>Selecione um caso, revise as premissas e execute a simulacao com um clique.</p>
       </div>
 
       <h2>Oportunidades</h2>
