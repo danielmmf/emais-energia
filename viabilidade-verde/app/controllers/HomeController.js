@@ -335,7 +335,8 @@
           form: angular.copy(vm.form),
           result: angular.copy(vm.result),
           report: angular.copy(vm.report),
-          mapImage: mapImage
+          mapImage: mapImage,
+          activeLayers: buildActiveLayerExport()
         });
 
         triggerDownload(documentHtml, buildDownloadFileName(), 'text/html');
@@ -860,6 +861,30 @@
 
     function getActiveLayerNames() {
       return LayerControlService.buildPanelState(vm.layerGroups).activeLayerNames;
+    }
+
+    function buildActiveLayerExport() {
+      var rows = [];
+
+      (vm.layerGroups || []).forEach(function (group) {
+        (group.layers || []).forEach(function (layer) {
+          if (!layer.visible) {
+            return;
+          }
+
+          rows.push({
+            group: group.label,
+            name: layer.label,
+            kind: layer.kind,
+            opacity: Number(layer.opacity || 0),
+            legend: layer.legend,
+            sourceLabel: layer.sourceLabel,
+            influence: layer.influence
+          });
+        });
+      });
+
+      return rows;
     }
 
     function zoomToLayer(layer) {

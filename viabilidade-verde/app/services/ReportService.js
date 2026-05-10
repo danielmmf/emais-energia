@@ -46,10 +46,44 @@
       var form = payload.form;
       var result = payload.result;
       var mapImage = payload.mapImage || '';
+      var activeLayers = Array.isArray(payload.activeLayers) ? payload.activeLayers : [];
       var generatedAt = payload.generatedAt || new Date().toISOString();
       var mapSection = mapImage
         ? '<img src="' + mapImage + '" alt="Mapa da simulacao" style="width:100%;border-radius:16px;border:1px solid #d8dfd8;display:block;">'
         : '<div style="padding:18px;border:1px dashed #c9d4cb;border-radius:16px;color:#56645b;background:#f6faf6;">Snapshot do mapa indisponivel nesta exportacao.</div>';
+      var activeLayersSection = activeLayers.length
+        ? [
+          '<section>',
+          '<h2>Camadas ativas na analise</h2>',
+          '<table style="width:100%;border-collapse:collapse;border:1px solid #dde5db;border-radius:16px;overflow:hidden;background:#fbfdf8;">',
+          '<thead>',
+          '<tr style="background:#eef5ee;">',
+          tableHeader('Grupo'),
+          tableHeader('Camada'),
+          tableHeader('Tipo'),
+          tableHeader('Transparencia'),
+          tableHeader('Legenda'),
+          tableHeader('Fonte'),
+          '</tr>',
+          '</thead>',
+          '<tbody>',
+          activeLayers.map(function (layer) {
+            return [
+              '<tr>',
+              tableCell(layer.group),
+              tableCell(layer.name),
+              tableCell(formatKind(layer.kind)),
+              tableCell(String(Number(layer.opacity || 0)) + '%'),
+              tableCell(layer.legend),
+              tableCell(layer.sourceLabel),
+              '</tr>'
+            ].join('');
+          }).join(''),
+          '</tbody>',
+          '</table>',
+          '</section>'
+        ].join('')
+        : '';
 
       return [
         '<!doctype html>',
@@ -112,6 +146,7 @@
         '<h2>Resumo executivo</h2>',
         '<div class="context"><p>' + escapeHtml(report.summary) + '</p></div>',
         '</section>',
+        activeLayersSection,
         '<section>',
         '<h2>Calculos</h2>',
         '<pre>' + escapeHtml([
@@ -132,7 +167,8 @@
           generatedAt: generatedAt,
           form: form,
           result: result,
-          report: report
+          report: report,
+          activeLayers: activeLayers
         }, null, 2)) + '</pre>',
         '</section>',
         '<section class="note">',
@@ -146,6 +182,14 @@
 
     function metricCard(label, value) {
       return '<article class="card"><strong>' + escapeHtml(label) + '</strong><span>' + escapeHtml(value) + '</span></article>';
+    }
+
+    function tableHeader(label) {
+      return '<th style="padding:12px 10px;border-bottom:1px solid #dde5db;text-align:left;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#55645b;">' + escapeHtml(label) + '</th>';
+    }
+
+    function tableCell(value) {
+      return '<td style="padding:12px 10px;border-bottom:1px solid #eef3ef;vertical-align:top;font-size:14px;line-height:1.45;">' + escapeHtml(value) + '</td>';
     }
 
     function formatCurrency(value) {
@@ -166,6 +210,22 @@
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
+    }
+
+    function formatKind(value) {
+      if (value === 'marker') {
+        return 'Marker / cluster';
+      }
+
+      if (value === 'region') {
+        return 'Poligono';
+      }
+
+      if (value === 'line') {
+        return 'Linha';
+      }
+
+      return value;
     }
 
     function formatDate(value) {
