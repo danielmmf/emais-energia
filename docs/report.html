@@ -547,6 +547,23 @@
       </section>
 
       <section class="section">
+        <h2>Atualizacao de UX: mapa responsivo</h2>
+        <p>
+          Problema identificado: no layout responsivo os filtros e controles estavam invadindo a area util do mapa,
+          o que tornava a navegacao ruim em mobile e tablet. Havia tambem risco de markers pouco legiveis ou quebrados
+          por dependencia do icon padrao do Leaflet.
+        </p>
+        <ul>
+          <li><strong>Solução aplicada:</strong> no desktop o app passou a usar 3 colunas; no mobile, o painel de camadas saiu do mapa e virou drawer externo.</li>
+          <li><strong>Fullscreen:</strong> foi adicionado botao de expandir/recolher o mapa com recálculo via <code>map.invalidateSize()</code>.</li>
+          <li><strong>Markers:</strong> os pontos agora usam icones SVG locais por categoria, eliminando dependencia do marker padrao do Leaflet.</li>
+          <li><strong>Status do responsivo:</strong> desktop e mobile validados no fluxo principal de producao.</li>
+          <li><strong>Status de clusters:</strong> mantidos; nesta etapa o cluster segue padrao visual, enquanto os markers individuais ganharam identidade por tipo.</li>
+          <li><strong>Pendencias:</strong> testar em celular real e revisar contraste final de alguns icones sobre tiles muito claros.</li>
+        </ul>
+      </section>
+
+      <section class="section">
         <h2>Prova de conceito</h2>
         <p>
           Foi criada uma PoC isolada em Leaflet usando a camada real

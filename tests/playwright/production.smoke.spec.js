@@ -32,8 +32,14 @@ test('producao: landing bloqueada e app no ar', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Oportunidades' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Painel de camadas' })).toBeVisible();
   await expect(page.locator('.layer-card').first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Expandir mapa' })).toBeVisible();
   await expect(page.locator('.data-source-note')).toBeVisible({ timeout: 20000 });
   await expect(page.locator('.data-source-note')).toContainText(/PID no mapa: .*Portos .*Biometano .*H2 .*Infra/, { timeout: 30000 });
+
+  await page.getByRole('button', { name: 'Expandir mapa' }).click();
+  await expect(page.locator('.layout')).toHaveClass(/map-fullscreen-active/);
+  await page.getByRole('button', { name: 'Sair da tela cheia' }).click();
+  await expect(page.locator('.layout')).not.toHaveClass(/map-fullscreen-active/);
 
   await page.getByText('Goias - Biometano para Fertilizantes').click();
   await expect(page.getByText('Potencial territorial:')).toBeVisible();

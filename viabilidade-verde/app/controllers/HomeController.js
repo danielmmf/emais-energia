@@ -36,6 +36,8 @@
     vm.firebaseEnabled = false;
     vm.simulationReady = false;
     vm.layerToolbarCollapsed = false;
+    vm.mobileLayerDrawerOpen = false;
+    vm.mapFullscreen = false;
     vm.pidDataStatus = {
       ports: { count: 0, fromCache: false },
       biometano: { count: 0, fromCache: false },
@@ -89,6 +91,10 @@
     vm.toggleLayerInfo = toggleLayerInfo;
     vm.setLayerOpacity = setLayerOpacity;
     vm.zoomToLayer = zoomToLayer;
+    vm.openMobileLayerDrawer = openMobileLayerDrawer;
+    vm.closeMobileLayerDrawer = closeMobileLayerDrawer;
+    vm.toggleMapFullscreen = toggleMapFullscreen;
+    vm.scrollToSection = scrollToSection;
     vm.selectOpportunity = selectOpportunity;
     vm.startSimulation = startSimulation;
     vm.calculate = calculate;
@@ -220,6 +226,14 @@
       vm.layerToolbarCollapsed = !vm.layerToolbarCollapsed;
     }
 
+    function openMobileLayerDrawer() {
+      vm.mobileLayerDrawerOpen = true;
+    }
+
+    function closeMobileLayerDrawer() {
+      vm.mobileLayerDrawerOpen = false;
+    }
+
     function toggleLayer(layerKey) {
       var layer = LayerControlService.findLayer(vm.layerGroups, layerKey);
       if (!layer) {
@@ -248,6 +262,32 @@
       refreshMapData();
     }
 
+    function toggleMapFullscreen() {
+      vm.mapFullscreen = !vm.mapFullscreen;
+      vm.mobileLayerDrawerOpen = false;
+      invalidateMapSize();
+    }
+
+    function scrollToSection(sectionId) {
+      var target = window.document.getElementById(sectionId);
+
+      if (!target) {
+        return;
+      }
+
+      if (vm.mapFullscreen) {
+        vm.mapFullscreen = false;
+        invalidateMapSize();
+      }
+
+      $timeout(function () {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 50);
+    }
+
     function selectOpportunity(item) {
       vm.selectedOpportunity = item;
       vm.selectedRegion = findRegionByName(item.region);
@@ -269,6 +309,7 @@
       vm.map.center.lng = item.lng;
       vm.map.center.zoom = 6;
       persistLastMapCenter();
+      vm.mobileLayerDrawerOpen = false;
       refreshMapData();
     }
 
@@ -297,10 +338,12 @@
         persistLastMapCenter();
       }
 
+      vm.mobileLayerDrawerOpen = false;
       refreshMapData();
     }
 
     function startSimulation() {
+      vm.mobileLayerDrawerOpen = false;
       syncAvailableRoutes(vm.form.recommendedRoute);
       vm.simulationReady = true;
     }
@@ -897,6 +940,15 @@
       leafletData.getMap().then(function (map) {
         map.fitBounds(bounds.pad(0.12));
       });
+      vm.mobileLayerDrawerOpen = false;
+    }
+
+    function invalidateMapSize() {
+      $timeout(function () {
+        leafletData.getMap().then(function (map) {
+          map.invalidateSize();
+        });
+      }, 250);
     }
 
     function buildLayerBounds(layer) {

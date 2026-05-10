@@ -5,9 +5,9 @@
     .module('viabilidadeVerdeApp')
     .service('MapDataService', MapDataService);
 
-  MapDataService.$inject = ['LayerControlService'];
+  MapDataService.$inject = ['LayerControlService', 'MarkerIconService'];
 
-  function MapDataService(LayerControlService) {
+  function MapDataService(LayerControlService, MarkerIconService) {
     var MARKER_LAYER_CONFIG = {
       industrias: { key: 'industrias', label: 'Industrias' },
       biometano: { key: 'biometano', label: 'Biometano' },
@@ -71,6 +71,7 @@
             focus: false,
             draggable: false,
             opacity: markerOpacity,
+            icon: MarkerIconService.resolve(item),
             layer: MARKER_LAYER_CONFIG[layerType].key,
             data: {
               opportunityId: item.id

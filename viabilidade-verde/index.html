@@ -47,8 +47,12 @@
     </article>
   </section>
 
-  <main class="layout">
-    <section class="map-panel">
+  <main class="layout" ng-class="{'map-fullscreen-active': home.mapFullscreen}">
+    <aside class="layer-panel-column desktop-only" ng-class="{'hidden-by-fullscreen': home.mapFullscreen}">
+      <div ng-include="'layer-control-panel.html'"></div>
+    </aside>
+
+    <section class="map-panel" ng-class="{'is-fullscreen': home.mapFullscreen}">
       <div class="panel-head">
         <div>
           <p class="section-kicker">Mapa de oportunidades</p>
@@ -57,94 +61,25 @@
         <p class="panel-copy">Combine camadas, aproxime o mapa e use o painel lateral para transformar contexto em simulacao.</p>
       </div>
 
+      <div class="mobile-map-actions mobile-only">
+        <button type="button" class="mobile-map-action" ng-click="home.openMobileLayerDrawer()">Camadas</button>
+        <button type="button" class="mobile-map-action" ng-click="home.scrollToSection('simulation-panel')">Simular</button>
+        <button type="button" class="mobile-map-action" ng-click="home.scrollToSection('results-section')" ng-disabled="!home.result">Resultado</button>
+        <button type="button" class="mobile-map-action" ng-click="home.scrollToSection('report-section')" ng-disabled="!home.report">Relatorio</button>
+      </div>
+
       <div class="map-stage">
-        <aside class="layer-control-panel" ng-class="{'collapsed': home.layerToolbarCollapsed}">
-          <div class="layer-control-header">
-            <div>
-              <p class="section-kicker">LayerControlPanel</p>
-              <h3>Painel de camadas</h3>
-            </div>
-            <button
-              type="button"
-              class="toggle-toolbar"
-              ng-click="home.toggleLayerToolbar()"
-              ng-class="{'collapsed': home.layerToolbarCollapsed}"
-              aria-label="{{ home.layerToolbarCollapsed ? 'Expandir painel de camadas' : 'Recolher painel de camadas' }}">
-              <span class="toggle-toolbar-text">{{ home.layerToolbarCollapsed ? 'Expandir' : 'Recolher' }}</span>
-              <span class="toggle-toolbar-icon">{{ home.layerToolbarCollapsed ? '+' : '−' }}</span>
-            </button>
-          </div>
-
-          <p class="layer-panel-message">
-            A PID mostra o potencial. O Viabilidade Verde mostra se a transicao e viavel.
-          </p>
-
-          <div class="layer-groups" ng-if="!home.layerToolbarCollapsed">
-            <section class="layer-group" ng-repeat="group in home.layerGroups track by group.id">
-              <button type="button" class="layer-group-toggle" ng-click="home.toggleLayerGroup(group)">
-                <span>{{ group.label }}</span>
-                <span>{{ group.collapsed ? '+' : '−' }}</span>
-              </button>
-
-              <div class="layer-group-body" ng-if="!group.collapsed">
-                <article class="layer-card" ng-repeat="layer in group.layers track by layer.id" ng-class="{'is-active': layer.visible}">
-                  <div class="layer-card-top">
-                    <label class="layer-switch">
-                      <input type="checkbox" ng-model="layer.visible" ng-change="home.toggleLayer(layer.id)">
-                      <span class="slider"></span>
-                      <span class="layer-name">{{ layer.label }}</span>
-                    </label>
-                    <span class="layer-status" ng-class="{'active': layer.visible, 'inactive': !layer.visible}">
-                      {{ layer.visible ? 'Ativa' : 'Inativa' }}
-                    </span>
-                  </div>
-
-                  <div class="layer-card-actions">
-                    <button type="button" class="layer-action ghost" ng-click="home.toggleLayerDetails(layer)">
-                      {{ layer.expanded ? 'Recolher detalhes' : 'Expandir detalhes' }}
-                    </button>
-                    <button type="button" class="layer-action ghost" ng-click="home.toggleLayerInfo(layer)">
-                      {{ layer.infoOpen ? 'Ocultar info' : 'Metadados' }}
-                    </button>
-                    <button type="button" class="layer-action ghost" ng-click="home.zoomToLayer(layer)">
-                      Zoom
-                    </button>
-                  </div>
-
-                  <div class="layer-card-body" ng-if="layer.expanded">
-                    <div class="layer-opacity-row">
-                      <span>Transparencia</span>
-                      <strong>{{ layer.opacity }}%</strong>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="1"
-                      ng-model="layer.opacity"
-                      ng-change="home.setLayerOpacity(layer)">
-
-                    <p class="layer-legend"><strong>Legenda:</strong> {{ layer.legend }}</p>
-                    <p class="layer-source"><strong>Fonte:</strong> {{ layer.sourceLabel }}</p>
-
-                    <div class="layer-info-box" ng-if="layer.infoOpen">
-                      <p><strong>Descricao:</strong> {{ layer.description }}</p>
-                      <p><strong>Influencia na analise:</strong> {{ layer.influence }}</p>
-                    </div>
-                  </div>
-                </article>
-              </div>
-            </section>
-          </div>
-        </aside>
-
-        <button
-          type="button"
-          class="layer-fab"
-          ng-click="home.toggleLayerToolbar()"
-          aria-label="{{ home.layerToolbarCollapsed ? 'Abrir painel de camadas' : 'Fechar painel de camadas' }}">
-          {{ home.layerToolbarCollapsed ? 'Camadas' : 'Fechar camadas' }}
-        </button>
+        <div class="map-toolbar">
+          <button
+            type="button"
+            class="map-toolbar-button"
+            ng-click="home.toggleMapFullscreen()"
+            title="{{ home.mapFullscreen ? 'Sair da tela cheia' : 'Expandir mapa' }}"
+            aria-label="{{ home.mapFullscreen ? 'Sair da tela cheia' : 'Expandir mapa' }}">
+            <span class="material-icons">{{ home.mapFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</span>
+            <span>{{ home.mapFullscreen ? 'Sair da tela cheia' : 'Expandir mapa' }}</span>
+          </button>
+        </div>
 
         <leaflet
           center="home.map.center"
@@ -156,10 +91,19 @@
           height="460px">
         </leaflet>
       </div>
+
+      <div class="mobile-selection-card mobile-only" ng-if="home.selectedOpportunity || home.selectedRegion">
+        <p class="section-kicker">Regiao selecionada</p>
+        <h3>{{ home.form.region || 'Selecione uma regiao' }}</h3>
+        <p>{{ home.form.sector || 'Sem setor definido' }}</p>
+        <p><strong>Rota sugerida:</strong> {{ home.form.recommendedRoute || 'Nao definida' }}</p>
+        <button type="button" ng-click="home.startSimulation()">Calcular Viabilidade</button>
+      </div>
+
       <p class="helper">Clique em um marcador, cluster ou regiao para abrir o contexto territorial.</p>
     </section>
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="simulation-panel" ng-class="{'hidden-by-fullscreen': home.mapFullscreen}">
       <div class="sidebar-hero">
         <p class="section-kicker">Painel de decisao</p>
         <h2>Da oportunidade ao calculo</h2>
@@ -234,7 +178,7 @@
     </aside>
   </main>
 
-  <section class="results" ng-if="home.result">
+  <section class="results" ng-if="home.result" id="results-section">
     <div class="results-head">
       <div>
         <p class="section-kicker">Resposta do cenario</p>
@@ -257,7 +201,7 @@
       <p>{{ home.result.recommendation }}</p>
     </article>
 
-    <article class="report" ng-if="home.report">
+    <article class="report" ng-if="home.report" id="report-section">
       <h3>Relatorio Executivo</h3>
       <p><strong>Regiao:</strong> {{ home.report.region }}</p>
       <p><strong>Setor:</strong> {{ home.report.sector }}</p>
@@ -283,6 +227,102 @@
     </article>
   </section>
 
+  <div class="mobile-layer-drawer-backdrop mobile-only" ng-if="home.mobileLayerDrawerOpen" ng-click="home.closeMobileLayerDrawer()"></div>
+  <section class="mobile-layer-drawer mobile-only" ng-class="{'open': home.mobileLayerDrawerOpen}" ng-if="home.mobileLayerDrawerOpen">
+    <div class="mobile-layer-drawer-sheet">
+      <div class="mobile-layer-drawer-head">
+        <div>
+          <p class="section-kicker">Camadas e filtros</p>
+          <h2>Painel do mapa</h2>
+        </div>
+        <button type="button" class="mobile-layer-close" ng-click="home.closeMobileLayerDrawer()">Fechar</button>
+      </div>
+      <div ng-include="'layer-control-panel.html'"></div>
+    </div>
+  </section>
+
+  <script type="text/ng-template" id="layer-control-panel.html">
+    <div class="layer-control-panel" ng-class="{'collapsed': home.layerToolbarCollapsed}">
+      <div class="layer-control-header">
+        <div>
+          <p class="section-kicker">LayerControlPanel</p>
+          <h3>Painel de camadas</h3>
+        </div>
+        <button
+          type="button"
+          class="toggle-toolbar"
+          ng-click="home.toggleLayerToolbar()"
+          ng-class="{'collapsed': home.layerToolbarCollapsed}"
+          aria-label="{{ home.layerToolbarCollapsed ? 'Expandir painel de camadas' : 'Recolher painel de camadas' }}">
+          <span class="toggle-toolbar-text">{{ home.layerToolbarCollapsed ? 'Expandir' : 'Recolher' }}</span>
+          <span class="toggle-toolbar-icon">{{ home.layerToolbarCollapsed ? '+' : '−' }}</span>
+        </button>
+      </div>
+
+      <p class="layer-panel-message">
+        A PID mostra o potencial. O Viabilidade Verde mostra se a transicao e viavel.
+      </p>
+
+      <div class="layer-groups" ng-if="!home.layerToolbarCollapsed">
+        <section class="layer-group" ng-repeat="group in home.layerGroups track by group.id">
+          <button type="button" class="layer-group-toggle" ng-click="home.toggleLayerGroup(group)">
+            <span>{{ group.label }}</span>
+            <span>{{ group.collapsed ? '+' : '−' }}</span>
+          </button>
+
+          <div class="layer-group-body" ng-if="!group.collapsed">
+            <article class="layer-card" ng-repeat="layer in group.layers track by layer.id" ng-class="{'is-active': layer.visible}">
+              <div class="layer-card-top">
+                <label class="layer-switch">
+                  <input type="checkbox" ng-model="layer.visible" ng-change="home.toggleLayer(layer.id)">
+                  <span class="slider"></span>
+                  <span class="layer-name">{{ layer.label }}</span>
+                </label>
+                <span class="layer-status" ng-class="{'active': layer.visible, 'inactive': !layer.visible}">
+                  {{ layer.visible ? 'Ativa' : 'Inativa' }}
+                </span>
+              </div>
+
+              <div class="layer-card-actions">
+                <button type="button" class="layer-action ghost" ng-click="home.toggleLayerDetails(layer)">
+                  {{ layer.expanded ? 'Recolher detalhes' : 'Expandir detalhes' }}
+                </button>
+                <button type="button" class="layer-action ghost" ng-click="home.toggleLayerInfo(layer)">
+                  {{ layer.infoOpen ? 'Ocultar info' : 'Metadados' }}
+                </button>
+                <button type="button" class="layer-action ghost" ng-click="home.zoomToLayer(layer)">
+                  Zoom
+                </button>
+              </div>
+
+              <div class="layer-card-body" ng-if="layer.expanded">
+                <div class="layer-opacity-row">
+                  <span>Transparencia</span>
+                  <strong>{{ layer.opacity }}%</strong>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  ng-model="layer.opacity"
+                  ng-change="home.setLayerOpacity(layer)">
+
+                <p class="layer-legend"><strong>Legenda:</strong> {{ layer.legend }}</p>
+                <p class="layer-source"><strong>Fonte:</strong> {{ layer.sourceLabel }}</p>
+
+                <div class="layer-info-box" ng-if="layer.infoOpen">
+                  <p><strong>Descricao:</strong> {{ layer.description }}</p>
+                  <p><strong>Influencia na analise:</strong> {{ layer.influence }}</p>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </div>
+  </script>
+
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -299,6 +339,7 @@
 
   <script src="app/services/FirebaseDataService.js"></script>
   <script src="app/services/LayerControlService.js"></script>
+  <script src="app/services/MarkerIconService.js"></script>
   <script src="app/services/MapDataService.js"></script>
   <script src="app/services/ViabilityService.js"></script>
   <script src="app/services/RecommendationService.js"></script>
