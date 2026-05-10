@@ -60,11 +60,17 @@
        <div class="layer-toolbar">
          <div class="layer-toolbar-header">
            <h3>Camadas</h3>
-           <button type="button" class="toggle-toolbar" ng-click="home.toggleLayerToolbar()" ng-class="{'collapsed': home.layerToolbarCollapsed}">
-             {{ home.layerToolbarCollapsed ? '▼' : '▲' }}
+           <button
+             type="button"
+             class="toggle-toolbar"
+             ng-click="home.toggleLayerToolbar()"
+             ng-class="{'collapsed': home.layerToolbarCollapsed}"
+             aria-label="{{ home.layerToolbarCollapsed ? 'Mostrar camadas' : 'Ocultar camadas' }}">
+             <span class="toggle-toolbar-text">{{ home.layerToolbarCollapsed ? 'Mostrar camadas' : 'Ocultar camadas' }}</span>
+             <span class="toggle-toolbar-icon">{{ home.layerToolbarCollapsed ? '+' : '−' }}</span>
            </button>
          </div>
-         <div ng-class="{'collapsed': home.layerToolbarCollapsed}">
+         <div class="layer-toolbar-body" ng-class="{'collapsed': home.layerToolbarCollapsed}">
            <label class="switch" ng-repeat="(key, layer) in home.layerToggles">
              <input type="checkbox" ng-model="layer.visible" ng-change="home.toggleLayer(key)">
              <span class="slider"></span>
