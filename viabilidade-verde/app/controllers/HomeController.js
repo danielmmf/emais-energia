@@ -5,39 +5,79 @@
     .module('viabilidadeVerdeApp')
     .controller('HomeController', HomeController);
 
-  HomeController.$inject = ['$q', '$scope', 'FirebaseDataService', 'MapDataService', 'ViabilityService', 'RecommendationService', 'ReportService'];
-  var LAST_MAP_CENTER_KEY = 'vv.lastMapCenter';
+   HomeController.$inject = ['$q', '$scope', '$timeout', 'FirebaseDataService', 'MapDataService', 'ViabilityService', 'RecommendationService', 'ReportService'];
+   var LAST_MAP_CENTER_KEY = 'vv.lastMapCenter';
+   var FEEDBACK_PASSWORD = 'baconpedacudo';
 
-  function HomeController($q, $scope, FirebaseDataService, MapDataService, ViabilityService, RecommendationService, ReportService) {
-    var vm = this;
+   function HomeController($q, $scope, $timeout, FirebaseDataService, MapDataService, ViabilityService, RecommendationService, ReportService) {
+     var vm = this;
 
-    vm.loading = true;
-    vm.error = null;
-    vm.opportunities = [];
-    vm.opportunitiesById = {};
-    vm.regions = null;
-    vm.infrastructure = null;
-    vm.regionIndex = {};
-    vm.assumptions = {};
-    vm.availableRoutes = [];
-    vm.selectedOpportunity = null;
-    vm.selectedRegion = null;
-    vm.result = null;
-    vm.report = null;
-    vm.firebaseEnabled = false;
-    vm.simulationReady = false;
+     vm.loading = true;
+     vm.error = null;
+     vm.opportunities = [];
+     vm.opportunitiesById = {};
+     vm.regions = null;
+     vm.infrastructure = null;
+     vm.regionIndex = {};
+     vm.assumptions = {};
+     vm.availableRoutes = [];
+     vm.selectedOpportunity = null;
+     vm.selectedRegion = null;
+     vm.result = null;
+     vm.report = null;
+     vm.firebaseEnabled = false;
+     vm.simulationReady = false;
+     vm.layerToolbarCollapsed = false;
 
-    vm.layerToggles = {
-      industrias: { label: 'Industrias', visible: true },
-      biometano: { label: 'Biometano', visible: true },
-      hidrogenio: { label: 'Hidrogenio', visible: true },
-      portos: { label: 'Portos', visible: true },
-      fertilizantes: { label: 'Fertilizantes', visible: true },
-      saf: { label: 'SAF', visible: true },
-      energia_renovavel: { label: 'Energia renovavel', visible: true },
-      infrastructure: { label: 'Infraestrutura', visible: true },
-      regions: { label: 'Regioes prioritarias', visible: true }
-    };
+     vm.layerToggles = {
+       industrias: { label: 'Industrias', visible: true },
+       biometano: { label: 'Biometano', visible: true },
+       hidrogenio: { label: 'Hidrogenio', visible: true },
+       portos: { label: 'Portos', visible: true },
+       fertilizantes: { label: 'Fertilizantes', visible: true },
+       saf: { label: 'SAF', visible: true },
+       energia_renovavel: { label: 'Energia renovavel', visible: true },
+       infrastructure: { label: 'Infraestrutura', visible: true },
+       regions: { label: 'Regioes prioritarias', visible: true }
+     };
+
+     vm.toggleLayerToolbar = function() {
+       vm.layerToolbarCollapsed = !vm.layerToolbarCollapsed;
+     };
+
+     // Feedback Modal
+     vm.feedbackModal = {
+       visible: false,
+       step: 'profile',
+       password: '',
+       passwordError: false,
+       mentor: {
+         type: '',
+         inputMode: '',
+         feedbackText: ''
+       },
+       gang: {
+         type: '',
+         priority: '',
+         message: ''
+       },
+       xereta: {
+         opinion: ''
+       }
+     };
+
+     // Feedback Methods
+     vm.openFeedbackModal = openFeedbackModal;
+     vm.closeFeedbackModal = closeFeedbackModal;
+     vm.selectProfile = selectProfile;
+     vm.checkPassword = checkPassword;
+     vm.setMentorType = setMentorType;
+     vm.setMentorInputMode = setMentorInputMode;
+     vm.sendMentorFeedback = sendMentorFeedback;
+     vm.setGangType = setGangType;
+     vm.setGangPriority = setGangPriority;
+     vm.sendGangFeedback = sendGangFeedback;
+     vm.setXeretaOpinion = setXeretaOpinion;
 
     vm.map = {
       center: {
@@ -223,21 +263,21 @@
     }
 
     function calculate() {
-      var computed = ViabilityService.calculate(vm.form, vm.assumptions);
-      computed.classification = RecommendationService.classify(computed);
-      computed.recommendation = RecommendationService.buildRecommendation(computed, vm.form);
-      vm.result = computed;
-      vm.report = ReportService.build(vm.form, vm.result);
+       var computed = ViabilityService.calculateViabilidade(vm.form, vm.assumptions);
+       computed.classification = RecommendationService.classify(computed);
+       computed.recommendation = RecommendationService.buildRecommendation(computed, vm.form);
+       vm.result = computed;
+       vm.report = ReportService.build(vm.form, vm.result);
 
-      FirebaseDataService.saveSimulation({
-        createdAt: new Date().toISOString(),
-        source: vm.selectedOpportunity ? vm.selectedOpportunity.id : (vm.selectedRegion ? vm.selectedRegion.id : null),
-        form: angular.copy(vm.form),
-        result: angular.copy(vm.result)
-      }).finally(function () {
-        FirebaseDataService.retryPendingSimulations();
-      });
-    }
+       FirebaseDataService.saveSimulation({
+         createdAt: new Date().toISOString(),
+         source: vm.selectedOpportunity ? vm.selectedOpportunity.id : (vm.selectedRegion ? vm.selectedRegion.id : null),
+         form: angular.copy(vm.form),
+         result: angular.copy(vm.result)
+       }).finally(function () {
+         FirebaseDataService.retryPendingSimulations();
+       });
+     }
 
     function asCurrency(value) {
       return Number(value || 0).toLocaleString('pt-BR', {
@@ -319,12 +359,169 @@
       }
     }
 
-    function persistLastMapCenter() {
-      window.localStorage.setItem(LAST_MAP_CENTER_KEY, JSON.stringify({
-        lat: vm.map.center.lat,
-        lng: vm.map.center.lng,
-        zoom: vm.map.center.zoom
-      }));
-    }
-  }
+     function persistLastMapCenter() {
+       window.localStorage.setItem(LAST_MAP_CENTER_KEY, JSON.stringify({
+         lat: vm.map.center.lat,
+         lng: vm.map.center.lng,
+         zoom: vm.map.center.zoom
+       }));
+     }
+
+     // Feedback Modal Functions
+     function openFeedbackModal() {
+       vm.feedbackModal.visible = true;
+       vm.feedbackModal.step = 'profile';
+       vm.feedbackModal.password = '';
+       vm.feedbackModal.passwordError = false;
+       // Reset form data
+       vm.feedbackModal.mentor = { type: '', inputMode: '', feedbackText: '' };
+       vm.feedbackModal.gang = { type: '', priority: '', message: '' };
+       vm.feedbackModal.xereta = { opinion: '' };
+     }
+
+     function closeFeedbackModal() {
+       vm.feedbackModal.visible = false;
+     }
+
+     function selectProfile(profile) {
+       vm.feedbackModal.selectedProfile = profile;
+       if (profile === 'mentor' || profile === 'gang') {
+         vm.feedbackModal.step = 'password';
+       } else if (profile === 'xereta') {
+         vm.feedbackModal.step = 'xereta';
+       }
+     }
+
+     function checkPassword() {
+       if (vm.feedbackModal.password === FEEDBACK_PASSWORD) {
+         vm.feedbackModal.passwordError = false;
+         if (vm.feedbackModal.selectedProfile === 'mentor') {
+           vm.feedbackModal.step = 'mentor';
+         } else if (vm.feedbackModal.selectedProfile === 'gang') {
+           vm.feedbackModal.step = 'gang';
+         }
+       } else {
+         vm.feedbackModal.passwordError = true;
+         vm.feedbackModal.password = '';
+       }
+     }
+
+     function setMentorType(type) {
+       vm.feedbackModal.mentor.type = type;
+       vm.feedbackModal.step = 'mentor_input_mode';
+     }
+
+     function setMentorInputMode(mode) {
+       vm.feedbackModal.mentor.inputMode = mode;
+       vm.feedbackModal.step = 'mentor_feedback';
+     }
+
+     function sendMentorFeedback() {
+       if (!vm.feedbackModal.mentor.feedbackText) {
+         return;
+       }
+
+       // Prepare feedback data
+       var feedbackData = {
+         profile: 'mentor',
+         type: vm.feedbackModal.mentor.type,
+         inputMode: vm.feedbackModal.mentor.inputMode,
+         message: vm.feedbackModal.mentor.feedbackText,
+         createdAt: new Date().toISOString(),
+         sentToTelegram: true, // Assume we'll implement Telegram sending
+         githubIssueCreated: false // Assume we'll implement GitHub issue creation
+       };
+
+       // Save locally (could extend to Firebase later)
+       saveFeedbackLocally(feedbackData);
+
+       // Show success
+       vm.feedbackModal.step = 'success';
+       $timeout(function() {
+         vm.feedbackModal.visible = false;
+       }, 1500);
+     }
+
+     function setGangType(type) {
+       vm.feedbackModal.gang.type = type;
+       vm.feedbackModal.step = 'gang_priority';
+     }
+
+     function setGangPriority(priority) {
+       vm.feedbackModal.gang.priority = priority;
+       vm.feedbackModal.step = 'gang_message';
+     }
+
+     function sendGangFeedback() {
+       if (!vm.feedbackModal.gang.message) {
+         return;
+       }
+
+       // Prepare feedback data
+       var feedbackData = {
+         profile: 'gang',
+         type: vm.feedbackModal.gang.type,
+         priority: vm.feedbackModal.gang.priority,
+         message: vm.feedbackModal.gang.message,
+         createdAt: new Date().toISOString(),
+         sentToTelegram: true, // Assume we'll implement Telegram sending
+         githubIssueCreated: false // Assume we'll implement GitHub issue creation
+       };
+
+       // Save locally (could extend to Firebase later)
+       saveFeedbackLocally(feedbackData);
+
+       // Show success
+       vm.feedbackModal.step = 'success';
+       $timeout(function() {
+         vm.feedbackModal.visible = false;
+       }, 1500);
+     }
+
+     function setXeretaOpinion(opinion) {
+       vm.feedbackModal.xereta.opinion = opinion;
+       vm.feedbackModal.step = 'xereta_thanks';
+     }
+
+     function saveFeedbackLocally(feedbackData) {
+       // In a real implementation, this would save to Firebase or localStorage
+       // For now, we'll just log it
+       console.log('Feedback saved:', feedbackData);
+       // TODO: Implement actual local storage or Firebase persistence
+     }
+
+     function activate() {
+       vm.firebaseEnabled = FirebaseDataService.isFirebaseEnabled();
+       restoreLastMapCenter();
+       bindMapEvents();
+
+       $q.all([
+         FirebaseDataService.getOpportunities(),
+         FirebaseDataService.getAssumptions(),
+         FirebaseDataService.getRegions(),
+         FirebaseDataService.getInfrastructure()
+       ]).then(function (response) {
+         vm.opportunities = response[0] || [];
+         vm.assumptions = response[1] || {};
+         vm.regions = response[2] || { type: 'FeatureCollection', features: [] };
+         vm.infrastructure = response[3] || { type: 'FeatureCollection', features: [] };
+         vm.regionIndex = MapDataService.buildRegionIndex(vm.regions);
+
+         vm.opportunitiesById = {};
+         vm.opportunities.forEach(function (opportunity) {
+           vm.opportunitiesById[opportunity.id] = opportunity;
+         });
+
+         vm.availableRoutes = Object.keys(vm.assumptions).map(function (key) {
+           return vm.assumptions[key].label;
+         });
+
+         refreshMapData();
+       }).catch(function (err) {
+         vm.error = 'Falha ao carregar dados: ' + (err && err.message ? err.message : 'erro desconhecido');
+       }).finally(function () {
+         vm.loading = false;
+         FirebaseDataService.retryPendingSimulations();
+       });
+     }
 })();

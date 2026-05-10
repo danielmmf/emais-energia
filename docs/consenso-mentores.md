@@ -9,3 +9,4 @@ Este arquivo consolida sugestões, dúvidas e mudanças de direção trazidas po
 
 ## Histórico
 
+- 2026-05-10T01:16:50.488Z Feedback de @danielmmf: qual o status atual da ideia ? pra onde vai e o que estão planejando ?

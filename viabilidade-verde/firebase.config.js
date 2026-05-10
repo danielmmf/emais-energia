@@ -8,7 +8,7 @@
  * Para fallback local:
  * - deixe VV_FIREBASE_ENABLED como false.
  */
-window.VV_FIREBASE_ENABLED = true;
+window.VV_FIREBASE_ENABLED = false;
 window.VV_FIREBASE_CONFIG = {
   apiKey: 'AIzaSyBBx1AvjAGmY_kHrJ2I5wNe8YEC6UM79fU',
   authDomain: 'emais-energia.firebaseapp.com',

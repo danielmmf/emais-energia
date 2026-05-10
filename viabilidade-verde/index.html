@@ -1,18 +1,19 @@
 <!doctype html>
 <html lang="pt-BR" ng-app="viabilidadeVerdeApp">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Viabilidade Verde | MVP</title>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Viabilidade Verde | MVP</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="assets/css/map.css">
-  <link rel="stylesheet" href="assets/css/dashboard.css">
-</head>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/map.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+  </head>
 <body ng-controller="HomeController as home">
   <header class="topbar">
     <div>
@@ -26,11 +27,21 @@
 
   <main class="layout">
     <section class="map-panel">
-      <div class="layer-toolbar">
-        <button type="button" class="layer-chip" ng-repeat="(key, layer) in home.layerToggles" ng-click="home.toggleLayer(key)" ng-class="{'off': !layer.visible}">
-          {{ layer.visible ? 'ON' : 'OFF' }} {{ layer.label }}
-        </button>
-      </div>
+       <div class="layer-toolbar">
+         <div class="layer-toolbar-header">
+           <h3>Camadas</h3>
+           <button type="button" class="toggle-toolbar" ng-click="home.toggleLayerToolbar()" ng-class="{'collapsed': home.layerToolbarCollapsed}">
+             {{ home.layerToolbarCollapsed ? '▼' : '▲' }}
+           </button>
+         </div>
+         <div ng-class="{'collapsed': home.layerToolbarCollapsed}">
+           <label class="switch" ng-repeat="(key, layer) in home.layerToggles">
+             <input type="checkbox" ng-model="layer.visible" ng-change="home.toggleLayer(key)">
+             <span class="slider"></span>
+             <span class="label">{{ layer.label }}</span>
+           </label>
+         </div>
+       </div>
 
       <leaflet
         center="home.map.center"
@@ -161,5 +172,112 @@
   <script src="app/controllers/MapController.js"></script>
   <script src="app/controllers/SimulationController.js"></script>
   <script src="app/controllers/ReportController.js"></script>
+  <!-- Floating Action Button for Feedback -->
+  <div class="feedback-fab" ng-click="home.openFeedbackModal()" title="Enviar feedback">
+    <i class="material-icons">feedback</i>
+  </div>
+
+  <!-- Feedback Modal -->
+  <div class="feedback-modal" ng-show="home.feedbackModal.visible">
+    <div class="feedback-modal-content">
+      <div class="feedback-modal-header">
+        <h2>Feedback</h2>
+        <button class="feedback-modal-close" ng-click="home.closeFeedbackModal()">×</button>
+      </div>
+      <div class="feedback-modal-body">
+        <!-- Profile Selection -->
+        <div ng-if="home.feedbackModal.step === 'profile'">
+          <p>Quem é você?</p>
+          <div class="feedback-options">
+            <button ng-click="home.selectProfile('mentor')">Mentor</button>
+            <button ng-click="home.selectProfile('gang')">Gang</button>
+            <button ng-click="home.selectProfile('xereta')">Xereta</button>
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div ng-if="home.feedbackModal.step === 'password'">
+          <p>Digite a senha para continuar:</p>
+          <input type="password" ng-model="home.feedbackModal.password" placeholder="Senha" />
+          <button ng-click="home.checkPassword()">Entrar</button>
+          <p class="error" ng-show="home.feedbackModal.passwordError">{{ home.feedbackModal.passwordError }}</p>
+        </div>
+
+        <!-- Mentor Flow -->
+        <div ng-if="home.feedbackModal.step === 'mentor'">
+          <p>Você tem uma dúvida ou uma sugestão?</p>
+          <div class="feedback-options">
+            <button ng-click="home.setMentorType('doubt')">Dúvida</button>
+            <button ng-click="home.setMentorType('suggestion')">Sugestão</button>
+          </div>
+        </div>
+
+        <div ng-if="home.feedbackModal.step === 'mentor_input_mode'">
+          <p>Você quer falar ou escrever?</p>
+          <div class="feedback-options">
+            <button ng-click="home.setMentorInputMode('write')">Escrever</button>
+            <button ng-click="home.setMentorInputMode('speak')">Falar</button>
+          </div>
+        </div>
+
+        <div ng-if="home.feedbackModal.step === 'mentor_feedback'">
+          <p>Digite seu feedback, dúvida ou sugestão:</p>
+          <textarea ng-model="home.feedbackModal.mentor.feedbackText" placeholder="Seu feedback aqui..."></textarea>
+          <button ng-click="home.sendMentorFeedback()">Enviar feedback</button>
+        </div>
+
+        <!-- Gang Flow -->
+        <div ng-if="home.feedbackModal.step === 'gang'">
+          <p>Selecione o tipo de feedback:</p>
+          <div class="feedback-options">
+            <button ng-click="home.setGangType('bug')">Bug</button>
+            <button ng-click="home.setGangType('idea')">Ideia</button>
+            <button ng-click="home.setGangType('visual_adjustment')">Ajuste visual</button>
+            <button ng-click="home.setGangType('pitch_adjustment')">Ajuste de pitch</button>
+            <button ng-click="home.setGangType('technical_doubt')">Dúvida técnica</button>
+            <button ng-click="home.setGangType('other')">Outro</button>
+          </div>
+        </div>
+
+        <div ng-if="home.feedbackModal.step === 'gang_priority'">
+          <p>Selecione a prioridade:</p>
+          <div class="feedback-options">
+            <button ng-click="home.setGangPriority('low')">Baixa</button>
+            <button ng-click="home.setGangPriority('medium')">Média</button>
+            <button ng-click="home.setGangPriority('high')">Alta</button>
+            <button ng-click="home.setGangPriority('urgent')">Urgente</button>
+          </div>
+        </div>
+
+        <div ng-if="home.feedbackModal.step === 'gang_message'">
+          <p>Descreva seu feedback:</p>
+          <textarea ng-model="home.feedbackModal.gang.message" placeholder="Sua mensagem aqui..."></textarea>
+          <button ng-click="home.sendGangFeedback()">Enviar para o GSD</button>
+        </div>
+
+        <!-- Xereta Flow -->
+        <div ng-if="home.feedbackModal.step === 'xereta'">
+          <p>Vocês estão usando vibecoding para fazer essa entrega?</p>
+          <div class="feedback-options">
+            <button ng-click="home.setXeretaOpinion('sim')">Sim, 100% no modo insano</button>
+            <button ng-click="home.setXeretaOpinion('um_poco')">Um pouco, mas com GSD</button>
+            <button ng-click="home.setXeretaOpinion('nao')">Não, só na raça</button>
+            <button ng-click="home.setXeretaOpinion('oque_vibecoding')">O que é vibecoding?</button>
+          </div>
+        </div>
+
+        <div ng-if="home.feedbackModal.step === 'xereta_thanks'">
+          <p>Valeu pela curiosidade 😄</p>
+          <button ng-click="home.closeFeedbackModal()">Fechar</button>
+        </div>
+
+        <!-- Success Message -->
+        <div ng-if="home.feedbackModal.step === 'success'">
+          <p>Feedback enviado com sucesso!</p>
+          <button ng-click="home.closeFeedbackModal()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
