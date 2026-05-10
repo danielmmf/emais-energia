@@ -561,24 +561,7 @@
 
     function captureMapSnapshot() {
       var deferred = $q.defer();
-      var mapPanel = window.document.querySelector('.map-panel');
-
-      if (!mapPanel || typeof window.html2canvas !== 'function') {
-        deferred.resolve('');
-        return deferred.promise;
-      }
-
-      window.html2canvas(mapPanel, {
-        backgroundColor: '#fffdf7',
-        useCORS: true,
-        scale: 2,
-        logging: false
-      }).then(function (canvas) {
-        deferred.resolve(canvas.toDataURL('image/png'));
-      }).catch(function () {
-        deferred.resolve('');
-      });
-
+      deferred.resolve(buildMapSnapshotDataUrl());
       return deferred.promise;
     }
 
@@ -605,6 +588,64 @@
         .replace(/^-+|-+$/g, '');
 
       return 'viabilidade-verde-' + (region || 'simulacao') + '.html';
+    }
+
+    function buildMapSnapshotDataUrl() {
+      var activeLayers = Object.keys(vm.layerToggles)
+        .filter(function (key) {
+          return vm.layerToggles[key].visible;
+        })
+        .map(function (key) {
+          return vm.layerToggles[key].label;
+        })
+        .join(' • ');
+
+      var title = vm.selectedOpportunity ? vm.selectedOpportunity.name : (vm.form.region || 'Analise territorial');
+      var subtitle = 'Centro ' + formatCoord(vm.map.center.lat) + ', ' + formatCoord(vm.map.center.lng) + ' • zoom ' + vm.map.center.zoom;
+      var route = vm.form.recommendedRoute || 'Rota nao definida';
+      var svg = [
+        '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680">',
+        '<defs>',
+        '<linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#edf4ea"/><stop offset="100%" stop-color="#fdf9ef"/></linearGradient>',
+        '<linearGradient id="card" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#f5fbf3"/></linearGradient>',
+        '</defs>',
+        '<rect width="1200" height="680" rx="28" fill="url(#bg)"/>',
+        '<rect x="48" y="48" width="1104" height="584" rx="28" fill="url(#card)" stroke="#dce6db"/>',
+        '<text x="84" y="98" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#1e7a43" font-weight="700">Viabilidade Verde • Snapshot da analise</text>',
+        '<text x="84" y="138" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#17231e" font-weight="800">' + escapeXml(title) + '</text>',
+        '<text x="84" y="174" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#55645b">' + escapeXml(subtitle) + '</text>',
+        '<rect x="84" y="214" width="730" height="340" rx="22" fill="#ecf4ee" stroke="#d6e4d6"/>',
+        '<path d="M160 448 C238 278, 430 250, 516 338 C588 412, 708 392, 760 308" fill="none" stroke="#bed6c0" stroke-width="26" stroke-linecap="round"/>',
+        '<path d="M170 470 C296 404, 402 480, 548 432 C650 398, 698 444, 768 384" fill="none" stroke="#8ec28f" stroke-width="10" stroke-linecap="round" stroke-dasharray="10 16"/>',
+        '<circle cx="490" cy="386" r="22" fill="#e1a641" stroke="#14572f" stroke-width="6"/>',
+        '<circle cx="490" cy="386" r="8" fill="#ffffff"/>',
+        '<text x="526" y="392" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#17231e" font-weight="700">' + escapeXml(vm.form.region || 'Regiao selecionada') + '</text>',
+        '<text x="526" y="420" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#55645b">Rota avaliada: ' + escapeXml(route) + '</text>',
+        '<rect x="844" y="214" width="264" height="340" rx="22" fill="#fffdf7" stroke="#d6e4d6"/>',
+        '<text x="876" y="260" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#1e7a43" font-weight="700">Camadas ativas</text>',
+        '<text x="876" y="296" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#55645b">' + escapeXml(activeLayers || 'Nenhuma') + '</text>',
+        '<text x="876" y="362" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#1e7a43" font-weight="700">Contexto</text>',
+        '<text x="876" y="398" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#55645b">Setor: ' + escapeXml(vm.form.sector || 'n/d') + '</text>',
+        '<text x="876" y="428" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#55645b">Fonte atual: ' + escapeXml(vm.form.currentSource || 'n/d') + '</text>',
+        '<text x="876" y="458" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#55645b">Rota: ' + escapeXml(route) + '</text>',
+        '<text x="84" y="598" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#55645b">Representacao exportada do estado do mapa no momento da simulacao.</text>',
+        '</svg>'
+      ].join('');
+
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
+    function formatCoord(value) {
+      return Number(value || 0).toFixed(3);
+    }
+
+    function escapeXml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
   }
 })();
