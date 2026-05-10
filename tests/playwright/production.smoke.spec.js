@@ -29,7 +29,7 @@ test('producao: landing bloqueada e app no ar', async ({ page }) => {
   await expect(page).toHaveURL(/\/viabilidade-verde\/?/);
   await expect(page.locator('body')).not.toContainText('{{');
   await expect(page.locator('.leaflet-container').first()).toBeVisible();
-  await expect(page.getByText('Oportunidades')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Oportunidades' })).toBeVisible();
 
   await page.getByText('Goias - Biometano para Fertilizantes').click();
   await expect(page.getByText('Potencial territorial:')).toBeVisible();
