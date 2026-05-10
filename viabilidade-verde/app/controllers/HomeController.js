@@ -22,7 +22,7 @@
     vm.infrastructure = null;
     vm.regionIndex = {};
     vm.assumptions = {};
-    vm.availableRoutes = [];
+    vm.availableRoutes = buildRouteOptions();
     vm.selectedOpportunity = null;
     vm.selectedRegion = null;
     vm.result = null;
@@ -127,9 +127,7 @@
           vm.opportunitiesByMarkerKey[opportunity._mapKey] = opportunity;
         });
 
-        vm.availableRoutes = Object.keys(vm.assumptions).map(function (key) {
-          return vm.assumptions[key].label;
-        });
+        vm.availableRoutes = buildRouteOptions();
 
         refreshMapData();
         flushQueuedFeedback();
@@ -214,6 +212,7 @@
       vm.form.recommendedRoute = item.recommendedRoute;
       vm.form.monthlyCostDefault = item.monthlyCostDefault;
       vm.form.investmentDefault = item.investmentDefault;
+      syncAvailableRoutes(item.recommendedRoute);
 
       vm.map.center.lat = item.lat;
       vm.map.center.lng = item.lng;
@@ -235,6 +234,7 @@
       vm.form.sector = properties.vocacao || '';
       vm.form.currentSource = 'Gas natural';
       vm.form.recommendedRoute = properties.rotaSugerida || 'Biometano';
+      syncAvailableRoutes(vm.form.recommendedRoute);
 
       if (center) {
         vm.map.center.lat = center.lat;
@@ -245,6 +245,7 @@
     }
 
     function startSimulation() {
+      syncAvailableRoutes(vm.form.recommendedRoute);
       vm.simulationReady = true;
     }
 
@@ -588,6 +589,31 @@
         .replace(/^-+|-+$/g, '');
 
       return 'viabilidade-verde-' + (region || 'simulacao') + '.html';
+    }
+
+    function buildRouteOptions() {
+      var source = vm.assumptions && Object.keys(vm.assumptions).length
+        ? vm.assumptions
+        : ViabilityService.getDefaultAssumptions();
+
+      return Object.keys(source).map(function (key) {
+        return source[key] && source[key].label;
+      }).filter(function (label, index, routes) {
+        return !!label && routes.indexOf(label) === index;
+      });
+    }
+
+    function syncAvailableRoutes(preferredRoute) {
+      var routes = buildRouteOptions();
+
+      if (preferredRoute && routes.indexOf(preferredRoute) === -1) {
+        routes.unshift(preferredRoute);
+      }
+
+      vm.availableRoutes = routes;
+      if (!vm.form.recommendedRoute && routes.length) {
+        vm.form.recommendedRoute = routes[0];
+      }
     }
 
     function buildMapSnapshotDataUrl() {

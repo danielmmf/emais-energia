@@ -10,6 +10,7 @@
   function ViabilityService(FirebaseDataService, $q) {
     this.calculate = calculate;
     this.calculateViabilidade = calculateViabilidade;
+    this.getDefaultAssumptions = getDefaultAssumptions;
     this.saveSimulacao = saveSimulacao;
     this.loadSimulacoes = loadSimulacoes;
     this.getCurrentResult = getCurrentResult;
@@ -78,6 +79,10 @@
 
     function getCurrentResult() {
       return null;
+    }
+
+    function getDefaultAssumptions() {
+      return angular.copy(defaultAssumptions());
     }
 
     function classifyDetailed(result) {

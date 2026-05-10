@@ -225,9 +225,9 @@
   <script src="app/controllers/SimulationController.js"></script>
   <script src="app/controllers/ReportController.js"></script>
   <!-- Floating Action Button for Feedback -->
-  <div class="feedback-fab" ng-click="home.openFeedbackModal()" title="Enviar feedback">
+  <button type="button" class="feedback-fab" ng-click="home.openFeedbackModal()" title="Enviar feedback" aria-label="Enviar feedback">
     <i class="material-icons">feedback</i>
-  </div>
+  </button>
 
   <!-- Feedback Modal -->
   <div class="feedback-modal" ng-show="home.feedbackModal.visible">

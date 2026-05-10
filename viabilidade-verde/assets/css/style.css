@@ -26,6 +26,7 @@ body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: var(--ink);
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top left, rgba(225, 166, 65, 0.18), transparent 28%),
     radial-gradient(circle at top right, rgba(30, 122, 67, 0.14), transparent 32%),
@@ -177,9 +178,24 @@ body::before {
 @media (max-width: 640px) {
   .topbar {
     padding: 24px 18px 14px;
+    gap: 14px;
   }
 
   .hero-strip {
     padding: 0 18px 8px;
+  }
+
+  .brand-block,
+  .topbar-meta {
+    width: 100%;
+  }
+
+  .chip {
+    width: 100%;
+    text-align: center;
+  }
+
+  .hero-strip article {
+    padding: 16px;
   }
 }

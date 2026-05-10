@@ -18,6 +18,7 @@
 
 .map-panel {
   padding: 18px;
+  overflow: hidden;
 }
 
 .panel-head {
@@ -244,6 +245,11 @@
 }
 
 @media (max-width: 640px) {
+  .map-panel,
+  .sidebar {
+    padding: 14px;
+  }
+
   .layer-toolbar-header {
     align-items: flex-start;
     flex-direction: column;
@@ -252,5 +258,33 @@
   .toggle-toolbar {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .layer-toolbar {
+    padding: 12px;
+    overflow: hidden;
+  }
+
+  .layer-toolbar-body {
+    display: grid;
+    gap: 8px;
+  }
+
+  .layer-toolbar .switch {
+    width: 100%;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid rgba(23, 35, 30, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  .layer-toolbar .label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .leaflet-container {
+    min-height: 380px;
   }
 }

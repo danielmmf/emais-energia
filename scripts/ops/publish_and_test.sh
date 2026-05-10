@@ -39,7 +39,7 @@ git push origin "$(git branch --show-current)"
 DEPLOY_OUTPUT=$(curl -fsS -X POST "$DEPLOY_URL" -d "token=${DEPLOY_TOKEN}")
 echo "$DEPLOY_OUTPUT" | jq -e '.ok == true' >/dev/null
 
-npx playwright test tests/playwright/production.smoke.spec.js --reporter=line
+npx playwright test tests/playwright/production.smoke.spec.js tests/playwright/production.mobile.spec.js --reporter=line
 
 bash scripts/ops/telegram_notify.sh "✅ Deploy e teste Playwright OK\nURL: ${PLAYWRIGHT_BASE_URL}"
 

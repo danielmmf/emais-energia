@@ -234,10 +234,12 @@ button:active {
 
 .feedback-fab {
   position: fixed;
-  right: 22px;
-  bottom: 22px;
+  right: max(22px, env(safe-area-inset-right));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
   width: 62px;
   height: 62px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -246,7 +248,8 @@ button:active {
   color: #fff;
   box-shadow: 0 18px 30px rgba(23, 35, 30, 0.24);
   cursor: pointer;
-  z-index: 1000;
+  z-index: 1100;
+  appearance: none;
 }
 
 .feedback-fab i {
@@ -345,8 +348,8 @@ button:active {
   }
 
   .feedback-fab {
-    right: 18px;
-    bottom: 18px;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
     width: 58px;
     height: 58px;
   }
