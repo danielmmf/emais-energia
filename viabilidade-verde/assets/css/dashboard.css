@@ -211,6 +211,21 @@ button:active {
   line-height: 1.5;
 }
 
+.report-actions {
+  margin-top: 18px;
+}
+
+.secondary-action {
+  background: linear-gradient(135deg, #fffef8, #eef5ea);
+  color: var(--brand-strong);
+  border: 1px solid rgba(20, 87, 47, 0.18);
+  box-shadow: none;
+}
+
+.secondary-action:hover {
+  background: linear-gradient(135deg, #ffffff, #e7f1e4);
+}
+
 .report ul,
 .report ol {
   margin: 10px 0 0;

@@ -86,6 +86,7 @@
     vm.selectOpportunity = selectOpportunity;
     vm.startSimulation = startSimulation;
     vm.calculate = calculate;
+    vm.downloadSimulation = downloadSimulation;
     vm.asCurrency = asCurrency;
     vm.openFeedbackModal = openFeedbackModal;
     vm.closeFeedbackModal = closeFeedbackModal;
@@ -261,6 +262,24 @@
         result: angular.copy(vm.result)
       }).finally(function () {
         FirebaseDataService.retryPendingSimulations();
+      });
+    }
+
+    function downloadSimulation() {
+      if (!vm.result || !vm.report) {
+        return;
+      }
+
+      captureMapSnapshot().then(function (mapImage) {
+        var documentHtml = ReportService.buildDownloadDocument({
+          generatedAt: new Date().toISOString(),
+          form: angular.copy(vm.form),
+          result: angular.copy(vm.result),
+          report: angular.copy(vm.report),
+          mapImage: mapImage
+        });
+
+        triggerDownload(documentHtml, buildDownloadFileName(), 'text/html');
       });
     }
 
@@ -538,6 +557,54 @@
         lng: vm.map.center.lng,
         zoom: vm.map.center.zoom
       }));
+    }
+
+    function captureMapSnapshot() {
+      var deferred = $q.defer();
+      var mapPanel = window.document.querySelector('.map-panel');
+
+      if (!mapPanel || typeof window.html2canvas !== 'function') {
+        deferred.resolve('');
+        return deferred.promise;
+      }
+
+      window.html2canvas(mapPanel, {
+        backgroundColor: '#fffdf7',
+        useCORS: true,
+        scale: 2,
+        logging: false
+      }).then(function (canvas) {
+        deferred.resolve(canvas.toDataURL('image/png'));
+      }).catch(function () {
+        deferred.resolve('');
+      });
+
+      return deferred.promise;
+    }
+
+    function triggerDownload(contents, fileName, mimeType) {
+      var blob = new window.Blob([contents], { type: mimeType + ';charset=utf-8' });
+      var url = window.URL.createObjectURL(blob);
+      var anchor = window.document.createElement('a');
+
+      anchor.href = url;
+      anchor.download = fileName;
+      window.document.body.appendChild(anchor);
+      anchor.click();
+      window.document.body.removeChild(anchor);
+
+      $timeout(function () {
+        window.URL.revokeObjectURL(url);
+      }, 0);
+    }
+
+    function buildDownloadFileName() {
+      var region = String(vm.form.region || 'simulacao')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      return 'viabilidade-verde-' + (region || 'simulacao') + '.html';
     }
   }
 })();

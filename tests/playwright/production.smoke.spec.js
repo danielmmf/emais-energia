@@ -42,6 +42,10 @@ test('producao: landing bloqueada e app no ar', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Economia anual' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Recomendacao' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Relatorio Executivo' })).toBeVisible();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Baixar dados da simulacao' }).click();
+  const download = await downloadPromise;
+  expect(await download.suggestedFilename()).toMatch(/viabilidade-verde-.*\.html$/);
   await page.waitForTimeout(1000);
 
   expect(pageErrors, 'page errors').toEqual([]);
