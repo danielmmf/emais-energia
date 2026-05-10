@@ -127,25 +127,23 @@
        features.forEach(function (feature, index) {
          var geometry = feature.geometry || {};
          var properties = feature.properties || {};
+         var infraId = properties.id || ('infra-' + index);
+         // Replace hyphens with underscores to comply with AngularJS-Leaflet path naming rules
+         infraId = infraId.replace(/-/g, '_');
 
-         if (
-           (geometry.type === 'LineString' && Array.isArray(geometry.coordinates)) ||
-           (geometry.type === 'MultiLineString' && Array.isArray(geometry.coordinates))
-         ) {
-           var infraId = properties.id || ('infra-' + index);
-           // Replace hyphens with underscores to comply with AngularJS-Leaflet path naming rules
-           infraId = infraId.replace(/-/g, '_');
-           paths[infraId] = {
-             type: 'polyline',
-             latlngs: geometry.type === 'MultiLineString'
-               ? geometry.coordinates.map(coordinatesToLatLngs)
-               : coordinatesToLatLngs(geometry.coordinates),
-             color: getInfrastructureColor(properties.styleType),
-             weight: getInfrastructureWeight(properties.styleType),
-             opacity: 0.82,
-             dashArray: getInfrastructureDashArray(properties.styleType),
-             clickable: false
-           };
+         if (geometry.type === 'LineString' && Array.isArray(geometry.coordinates)) {
+           paths[infraId] = buildInfrastructurePath(geometry.coordinates, properties);
+           return;
+         }
+
+         if (geometry.type === 'MultiLineString' && Array.isArray(geometry.coordinates)) {
+           geometry.coordinates.forEach(function (segment, segmentIndex) {
+             if (!Array.isArray(segment) || !segment.length) {
+               return;
+             }
+
+             paths[infraId + '_' + segmentIndex] = buildInfrastructurePath(segment, properties);
+           });
          }
        });
 
@@ -276,6 +274,18 @@
         return '2,5';
       }
       return null;
+    }
+
+    function buildInfrastructurePath(coordinates, properties) {
+      return {
+        type: 'polyline',
+        latlngs: coordinatesToLatLngs(coordinates),
+        color: getInfrastructureColor(properties.styleType),
+        weight: getInfrastructureWeight(properties.styleType),
+        opacity: 0.82,
+        dashArray: getInfrastructureDashArray(properties.styleType),
+        clickable: false
+      };
     }
 
     function escapeHtml(value) {
