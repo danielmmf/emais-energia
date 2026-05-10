@@ -30,6 +30,18 @@ test('producao: landing bloqueada e app no ar', async ({ page }) => {
   await expect(page.locator('body')).not.toContainText('{{');
   await expect(page.locator('.leaflet-container').first()).toBeVisible();
   await expect(page.getByText('Oportunidades')).toBeVisible();
+
+  await page.getByText('Goias - Biometano para Fertilizantes').click();
+  await expect(page.getByText('Potencial territorial:')).toBeVisible();
+  await page.getByRole('button', { name: 'Calcular Viabilidade' }).click();
+  await page.getByRole('button', { name: 'Executar simulacao' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Resultado' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Custo atual anual' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Custo verde anual' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Economia anual' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Recomendacao' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Relatorio Executivo' })).toBeVisible();
   await page.waitForTimeout(1000);
 
   expect(pageErrors, 'page errors').toEqual([]);
